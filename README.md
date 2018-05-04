@@ -9,13 +9,17 @@
 
 Initiate the demo by running:
 
-`source ./demo.sh`
+`source ./init.sh`
 
-To stop all the elements instances do:
+To stop all the ocean instances do:
 
 `./stop.sh`
 
-The following aliases can be used to perform any command line operations available in the bitcoin/elements clients:
+To restart all the ocean instances do (the signblockscript will have to be specified in the script):
+
+`./start.sh`
+
+The following aliases can be used to perform any command line operations available in the elements/ocean clients:
 
 * e-cli (main signing node)
 * e1-cli (client node)
