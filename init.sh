@@ -6,7 +6,6 @@ cp ./main/elements.conf ~/elementsdir-main/elements.conf
 cp ./client-1/elements.conf ~/elementsdir1/elements.conf
 cp ./explorer/elements.conf ~/elementsdir-explorer/elements.conf
 
-
 shopt -s expand_aliases
 
 ELEMENTSPATH="../ocean/src"
@@ -37,8 +36,9 @@ SIGNBLOCKARG="-signblockscript=5121$(echo $PUBKEY1)51ae" ; sleep 1
 # so we start fresh on a new chain.
 rm -r ~/elementsdir-main ;
 mkdir ~/elementsdir-main ;
+mkdir ~/elementsdir-main/terms-and-conditions ; 
 cp ./main/elements.conf ~/elementsdir-main/elements.conf
-
+cp latest.txt ~/elementsdir-main/terms-and-conditions/latest.txt
 
 e-dae $SIGNBLOCKARG ; sleep 5
 e-cli importprivkey $KEY1 ; sleep 1
