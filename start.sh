@@ -4,7 +4,7 @@ alias e-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir-main"
 alias e1-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir1"
 alias ee-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir-explorer"
 
-SIGNBLOCKARG="-signblockscript=5121030bddc5c46fb9cda35ce955441df1ceb46a947a75df87a2f2b287df3421bcea3151ae" ; sleep 1
+SIGNBLOCKARG="-signblockscript=512102906c00cd4f362514e4d20669a664cd94947b580c1f082c45c2df00c247ed515a51ae" ; sleep 1
 
 e-dae $SIGNBLOCKARG ; sleep 5
 e1-dae $SIGNBLOCKARG ; sleep 5
