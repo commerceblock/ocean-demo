@@ -28,15 +28,6 @@ def loadConfig(filename):
     conf["filename"] = filename
     return conf
 
-def sync_all(e1, e2):
-    totalWait = 10
-    while e1.getblockcount() != e2.getblockcount() or len(e1.getrawmempool()) != len(e2.getrawmempool()):
-        totalWait -= 1
-        if totalWait == 0:
-            raise Exception("Nodes cannot sync blocks or mempool!")
-        time.sleep(1)
-    return
-
 def generate_block(e1, e2):
     blockhex = e1.getnewblockhex()
     e1.getblockcount() == 0
@@ -56,64 +47,49 @@ def generate_block(e1, e2):
 
 if __name__ == "__main__":
     ## Preparations
-    main_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    client_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-
-    os.makedirs(main_datadir)
-    os.makedirs(client_datadir)
-    os.makedirs(explorer_datadir)
-
-    shutil.copyfile("../main/elements.conf", main_datadir+"/elements.conf")
-    shutil.copyfile("../client-1/elements.conf", client_datadir+"/elements.conf")
-    shutil.copyfile("../explorer/elements.conf", explorer_datadir+"/elements.conf")
-
-    mainconf = loadConfig("../main/elements.conf")
-    clientconf = loadConfig("../client-1/elements.conf")
-    explconf = loadConfig("../explorer/elements.conf")
-
     key = "L1tqiDcvS6wz2gVSa1sx2cuDUoomUsidzCHHZA25xTeNk1k5y8W5"
     key1 = "L1b1FzNjKXYomwAE9dUwyG6SMxuGqBPsiGp6pgbVWheQCiCZi8pu"
     signblockarg="-signblockscript=5221037052cdb7b5bd6cdc8a449ab2b9a35f7a361df9735ea09b8ade1d2d2ead71b6852103d65d1b9ded117646890cbab2995a0cd503b0791284fdb64668724a729732b52452ae"
 
+    # MAIN SIGNING NODE 0
+    main_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    os.makedirs(main_datadir)
+    shutil.copyfile("../main/elements.conf", main_datadir+"/elements.conf")
+    mainconf = loadConfig("../main/elements.conf")
     e = startelementsd(main_datadir, mainconf, signblockarg)
     time.sleep(5)
-    e1 = startelementsd(client_datadir, clientconf, signblockarg)
-    time.sleep(5)
-    ee = startelementsd(explorer_datadir, explconf, signblockarg)
-    time.sleep(5)
     e.importprivkey(key)
+
+    # SECOND SIGNING NODE
+    main1_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    os.makedirs(main1_datadir)
+    shutil.copyfile("../main1/elements.conf", main1_datadir+"/elements.conf")
+    main1conf = loadConfig("../main1/elements.conf")
+    e1 = startelementsd(main1_datadir, main1conf, signblockarg)
+    time.sleep(5)
     e1.importprivkey(key1)
 
-    # Generate no longer works, even if keys are in wallet
-    try:
-        e.generate(1)
-        raise Exception("Generate shouldn't work")
-    except JSONRPCException:
-        pass
+    # EXPLORER FULL NODE
+    explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    os.makedirs(explorer_datadir)
+    shutil.copyfile("../explorer/elements.conf", explorer_datadir+"/elements.conf")
+    explconf = loadConfig("../explorer/elements.conf")
+    ee = startelementsd(explorer_datadir, explconf, signblockarg)
+    time.sleep(5)
+    
 
-    try:
-        e1.generate(1)
-        raise Exception("Generate shouldn't work")
-    except JSONRPCException:
-        pass
+    node = BlockSigning(0, e)   # NODE 0 
+    node1 = BlockSigning(1, e1) # NODE 1
 
-    # Let's propose and accept some blocks, e1 is master!
-    for i in range(1,2):
-        generate_block(e, e1)
-
-    node = BlockSigning(1, e)
-    node1 = BlockSigning(0, e1)
-
-    try:
-        '''
-        logging.basicConfig(
+    logging.basicConfig(
             format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
             level=logging.INFO
             )
-        '''
-        node.start()
-        node1.start()
+
+    node.start()
+    node1.start()
+
+    try:
         while 1:
             time.sleep(100)       
     except KeyboardInterrupt:
@@ -124,5 +100,5 @@ if __name__ == "__main__":
         ee.stop()
         time.sleep(2)
         shutil.rmtree(main_datadir)
-        shutil.rmtree(client_datadir)
+        shutil.rmtree(main1_datadir)
         shutil.rmtree(explorer_datadir)

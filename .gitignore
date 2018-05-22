@@ -1,1 +1,3 @@
 *.pyc
+
+/BLOCK-SIGNING/__pycache__/
