@@ -6,30 +6,17 @@ import sys
 import time
 import subprocess
 import shutil
-import BlockSigner
 import logging
 import json
 from decimal import *
 from pdb import set_trace
 from kafka import KafkaConsumer, KafkaProducer
-from BlockSigner import BlockSigning
+from Signer import BlockSigning
 from MultiSig import MultiSig
+from Client import Client
+from util import *
 
 ELEMENTS_PATH = "../../ocean/src/elementsd"
-
-def startelementsd(datadir, conf, args=""):
-    subprocess.Popen((ELEMENTS_PATH+"  -datadir="+datadir+" "+args).split(), stdout=subprocess.PIPE)
-    return AuthServiceProxy("http://"+conf["rpcuser"]+":"+conf["rpcpassword"]+"@127.0.0.1:"+conf["rpcport"])
-
-def loadConfig(filename):
-    conf = {}
-    with open(filename) as f:
-        for line in f:
-            if len(line) == 0 or line[0] == "#" or len(line.split("=")) != 2:
-                continue
-            conf[line.split("=")[0]] = line.split("=")[1].strip()
-    conf["filename"] = filename
-    return conf
 
 def main():
     num_of_nodes = 3
@@ -98,6 +85,9 @@ def main():
     for node in node_signers:
         node.start()
 
+    client = Client()
+    client.start()
+
     try:
         while 1:
             print("**EXPLORER**\nblockcount: {} latestblockhash: {}".format(ee.getblockcount(), ee.getbestblockhash()))
@@ -111,6 +101,7 @@ def main():
             elements.stop()
 
         ee.stop()
+        client.stop()
 
         for datadir in elements_datadirs:
             shutil.rmtree(datadir)
