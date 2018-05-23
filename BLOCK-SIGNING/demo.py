@@ -11,7 +11,7 @@ import json
 from decimal import *
 from pdb import set_trace
 from kafka import KafkaConsumer, KafkaProducer
-from Signer import BlockSigning
+from BlockSigning import BlockSigning
 from MultiSig import MultiSig
 from Client import Client
 from util import *
