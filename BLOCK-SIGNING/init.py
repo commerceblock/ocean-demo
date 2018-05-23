@@ -13,9 +13,12 @@ from decimal import *
 from pdb import set_trace
 from kafka import KafkaConsumer, KafkaProducer
 from BlockSigner import BlockSigning
+from MultiSig import MultiSig
+
+ELEMENTS_PATH = "../../ocean/src/elementsd"
 
 def startelementsd(datadir, conf, args=""):
-    subprocess.Popen(("../../ocean/src/elementsd  -datadir="+datadir+" "+args).split(), stdout=subprocess.PIPE)
+    subprocess.Popen((ELEMENTS_PATH+"  -datadir="+datadir+" "+args).split(), stdout=subprocess.PIPE)
     return AuthServiceProxy("http://"+conf["rpcuser"]+":"+conf["rpcpassword"]+"@127.0.0.1:"+conf["rpcport"])
 
 def loadConfig(filename):
@@ -28,77 +31,89 @@ def loadConfig(filename):
     conf["filename"] = filename
     return conf
 
-def generate_block(e1, e2):
-    blockhex = e1.getnewblockhex()
-    e1.getblockcount() == 0
-    e1.submitblock(blockhex)
-    e1.getblockcount() == 0
+def main():
+    num_of_nodes = 3
+    num_of_sigs = 2
+    keys = []
+    signblockarg = ""
+    if len(sys.argv) == 3: # generate new signing keys and multisig
+        num_of_nodes = sys.argv[1]
+        num_of_nodes = sys.argv[2]
+        if num_of_sigs > num_of_nodes:
+            raise ValueError("Num of sigs cannot be larger than num of nodes")
 
-    sign1 = e1.signblock(blockhex)
-    sign2 = e2.signblock(blockhex)
-    blockresult = e2.combineblocksigs(blockhex, [sign1, sign2])
+        print("Generating {} of {} multisig".format(num_of_sigs, num_of_nodes))
+        sig = MultiSig(num_of_nodes, num_of_sigs, "../main/elements.conf", ELEMENTS_PATH)
+        sig.generate()
+        # THIS NEWLY GENERATED KEYS WILL HAVE TO BE COPIED TO OTHER NODES IN THE DEMO
+        keys = sig.privkeys
+        print(keys)
+        signblockarg = "-signblockscript={}".format(sig.multisig["redeemScript"])
+        print("Generated: {}".format(signblockarg))
+    else: # use hardcoded keys and multisig
+        print("Using hardcoded keys and multisig")
 
-    blockresult["complete"] == True
-    signedblock = blockresult["hex"]
-    e2.submitblock(signedblock)
+        keys = ['Kz4aMbbciZrjrNBi4rwwrTemGKbj9qCdVVRKXAvyt1YK1mPFpRG8',
+                'Ky4A1C5xeTDSR4SWey6Lees9WHjGTfgVAK3vWngCjWQDFs5UqHx3',
+                'L5dPkjz7hzhGCfYAd19fDWsetdCCwUPRPtt3bLh7SSTrh3DFNY34']
 
-    e1.getblockcount() == 1
-    e1.getblockcount() == 1
+        signblockarg = "-signblockscript=522103d517f6e9affa60000a08d478970e6bbfa45d63b1967ed1e066dd46b802edb2a62102afc18e8a7ff988ca1ae7b659cb09a79852d301c2283e18cba1faf7a0b020b1a22102edd8080e31f05c68cf68a97782ac97744e86ba19dfd3ba68e597f10868ee5bc453ae"
 
-if __name__ == "__main__":
-    ## Preparations
-    key = "L1tqiDcvS6wz2gVSa1sx2cuDUoomUsidzCHHZA25xTeNk1k5y8W5"
-    key1 = "L1b1FzNjKXYomwAE9dUwyG6SMxuGqBPsiGp6pgbVWheQCiCZi8pu"
-    signblockarg="-signblockscript=5221037052cdb7b5bd6cdc8a449ab2b9a35f7a361df9735ea09b8ade1d2d2ead71b6852103d65d1b9ded117646890cbab2995a0cd503b0791284fdb64668724a729732b52452ae"
+    elements_nodes = []
+    elements_datadirs = []
+    for i in range(0, num_of_nodes): # spawn elements signing node
+        confdir="main"+str(i)+"/elements.conf"
+        datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+        os.makedirs(datadir)
+        elements_datadirs.append(datadir)
+        shutil.copyfile(confdir, datadir+"/elements.conf")
+        mainconf = loadConfig(confdir)
+        print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
+        e = startelementsd(datadir, mainconf, signblockarg)
+        time.sleep(10)
+        elements_nodes.append(e)
+        e.importprivkey(keys[i])
+        time.sleep(2)
 
-    # MAIN SIGNING NODE 0
-    main_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    os.makedirs(main_datadir)
-    shutil.copyfile("../main/elements.conf", main_datadir+"/elements.conf")
-    mainconf = loadConfig("../main/elements.conf")
-    e = startelementsd(main_datadir, mainconf, signblockarg)
-    time.sleep(5)
-    e.importprivkey(key)
-
-    # SECOND SIGNING NODE
-    main1_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    os.makedirs(main1_datadir)
-    shutil.copyfile("../main1/elements.conf", main1_datadir+"/elements.conf")
-    main1conf = loadConfig("../main1/elements.conf")
-    e1 = startelementsd(main1_datadir, main1conf, signblockarg)
-    time.sleep(5)
-    e1.importprivkey(key1)
-
-    # EXPLORER FULL NODE
-    explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    os.makedirs(explorer_datadir)
-    shutil.copyfile("../explorer/elements.conf", explorer_datadir+"/elements.conf")
-    explconf = loadConfig("../explorer/elements.conf")
-    ee = startelementsd(explorer_datadir, explconf, signblockarg)
-    time.sleep(5)
-    
-
-    node = BlockSigning(0, e)   # NODE 0 
-    node1 = BlockSigning(1, e1) # NODE 1
-
+    '''
     logging.basicConfig(
             format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
             level=logging.INFO
             )
+    '''
 
-    node.start()
-    node1.start()
+    # EXPLORER FULL NODE
+    explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    os.makedirs(explorer_datadir)
+    shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
+    explconf = loadConfig("explorer/elements.conf")
+    ee = startelementsd(explorer_datadir, explconf, signblockarg)
+    time.sleep(5)
+
+    node_signers = []
+    for i in range(0, num_of_nodes):
+        node = BlockSigning(i, elements_nodes[i], num_of_nodes)
+        node_signers.append(node)
+
+    for node in node_signers:
+        node.start()
 
     try:
         while 1:
-            time.sleep(100)       
+            print("**EXPLORER**\nblockcount: {} latestblockhash: {}".format(ee.getblockcount(), ee.getbestblockhash()))
+            time.sleep(180)
+       
     except KeyboardInterrupt:
-        node.stop()
-        node1.stop()
-        e.stop()
-        e1.stop()
+        for node in node_signers:
+            node.stop()
+
+        for elements in elements_nodes:
+            elements.stop()
+
         ee.stop()
-        time.sleep(2)
-        shutil.rmtree(main_datadir)
-        shutil.rmtree(main1_datadir)
-        shutil.rmtree(explorer_datadir)
+
+        for datadir in elements_datadirs:
+            shutil.rmtree(datadir)
+
+if __name__ == "__main__":
+    main()

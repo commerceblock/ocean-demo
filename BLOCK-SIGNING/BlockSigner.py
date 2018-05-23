@@ -8,8 +8,8 @@ from time import sleep, time
 
 TOPIC_NEW_BLOCK = 'new-block'
 TOPIC_NEW_SIG = 'new-sig'
-TOTAL = 2
-INTERVAL = 30
+TOTAL = 3
+INTERVAL = 60
 KAFKA_SERVER = 'localhost:9092'
 
 class Producer(threading.Thread):
@@ -73,12 +73,14 @@ class Consumer(threading.Thread):
         self.consumer.close()
 
 class BlockSigning(multiprocessing.Process):
-    def __init__(self, id, elements):
+    def __init__(self, id, elements, num_of_nodes):
         multiprocessing.Process.__init__(self)
         self.stop_event = multiprocessing.Event()
         self.id = id
         self.elements = elements
         self.interval = INTERVAL
+        global TOTAL
+        TOTAL = num_of_nodes
         self.sig_topics = [TOPIC_NEW_SIG + "{}".format(i) for i in range(0,TOTAL)]
 
     def stop(self):
