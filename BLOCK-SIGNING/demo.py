@@ -24,8 +24,8 @@ def main():
     keys = []
     signblockarg = ""
     if len(sys.argv) == 3: # generate new signing keys and multisig
-        num_of_nodes = sys.argv[1]
-        num_of_nodes = sys.argv[2]
+        num_of_sigs = int(sys.argv[1])
+        num_of_nodes = int(sys.argv[2])
         if num_of_sigs > num_of_nodes:
             raise ValueError("Num of sigs cannot be larger than num of nodes")
 
@@ -57,7 +57,7 @@ def main():
         mainconf = loadConfig(confdir)
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
         e = startelementsd(datadir, mainconf, signblockarg)
-        time.sleep(10)
+        time.sleep(5)
         elements_nodes.append(e)
         e.importprivkey(keys[i])
         time.sleep(2)
