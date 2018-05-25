@@ -9,12 +9,11 @@ import shutil
 import logging
 import json
 from decimal import *
+from util import *
 from pdb import set_trace
-from kafka import KafkaConsumer, KafkaProducer
 from BlockSigning import BlockSigning
 from MultiSig import MultiSig
 from Client import Client
-from util import *
 
 ELEMENTS_PATH = "../../ocean/src/elementsd"
 
@@ -78,8 +77,8 @@ def main():
     time.sleep(5)
 
     node_signers = []
-    for i in range(0, num_of_nodes):
-        node = BlockSigning(i, elements_nodes[i], num_of_nodes)
+    for i in range(10, 10+num_of_nodes):
+        node = BlockSigning(i, elements_nodes[i%num_of_nodes], num_of_nodes)
         node_signers.append(node)
 
     for node in node_signers:
@@ -90,8 +89,7 @@ def main():
 
     try:
         while 1:
-            print("**EXPLORER**\nblockcount: {} latestblockhash: {}".format(ee.getblockcount(), ee.getbestblockhash()))
-            time.sleep(180)
+            time.sleep(300)
        
     except KeyboardInterrupt:
         for node in node_signers:

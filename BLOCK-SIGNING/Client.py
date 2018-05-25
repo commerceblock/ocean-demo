@@ -48,7 +48,7 @@ class Client(multiprocessing.Process):
         while not self.stop_event.is_set():
             addr = self.elements_nodes[0 if myTurn else 1].getnewaddress()
             time.sleep(5)
-            #self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 1)
+            self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 1)
             time.sleep(5)
             self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 2, "", "", False, self.assets[1 if myTurn else 0])
             time.sleep(2)
