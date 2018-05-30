@@ -1,11 +1,13 @@
-# ocean-demo
+# Ocean Demo
+
+This is a simple bash script demo for the Ocean network. This demo exhibits block signing by a single node and whitelisting of transactions between a client and a main node. A demonstration of Ocean's advanced protocols is also included written in Python under [PROTOCOLS](PROTOCOLS/). The following instructions apply for all demos.
 
 ## Instructions
 1. Download and install ocean on the same directory as ocean-demo 
-2. Download the ocean explorer and start the node server (`npm start`)
-3. Download the ocean-demo
+2. Download the ocean-explorer and start the node server (`npm start`)
+3. Clone ocean-demo
 
-## Demo Options
+## Running the demo
 
 Initiate the demo by running:
 
@@ -15,17 +17,17 @@ To stop all the ocean instances do:
 
 `./stop.sh`
 
-To restart all the ocean instances do (the signblockscript will have to be specified in the script):
+To restart all the ocean instances do (the signblockscript will have to be updated in the script):
 
 `./start.sh`
 
-The following aliases can be used to perform any command line operations available in the elements/ocean clients:
+The following aliases can be used to perform any command line operations available in the Ocean clients:
 
 * e-cli (main signing node)
 * e1-cli (client node)
 * ee-cli (block explorer node with wallet disabled)
 
-Example usage:
+### Examples
 
 - Send CBT from the main node to the client node
 
@@ -43,4 +45,14 @@ Example usage:
 
 	`ee-cli getblock ($ee-cli getbestblockhash) true`
 
+### Whitelisting
 
+The demo includes a demonstration of transaction whitelisting by the main signing node. If a new client were to be added then the following procedure will have to be followed in order for transactions to be accepted in the mempool of the signing node:
+
+- Client node to dump it's derived keys (pubkey hash of tweaked key)
+
+	`e-cli dumpderivedkeys keys`
+
+- Main signing node to add this keys to it's whitelist
+
+	`e-cli readwhitelist keys`

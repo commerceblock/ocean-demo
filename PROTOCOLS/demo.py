@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from authproxy import AuthServiceProxy, JSONRPCException
+from src.authproxy import AuthServiceProxy, JSONRPCException
 import os
 import random
 import sys
@@ -9,15 +9,17 @@ import shutil
 import logging
 import json
 from decimal import *
-from util import *
 from pdb import set_trace
-from BlockSigning import BlockSigning
-from MultiSig import MultiSig
-from Client import Client
+from src.util import *
+from src.MultiSig import MultiSig
+from src.BlockSigning import BlockSigning
+from client import Client
 
 ELEMENTS_PATH = "../../ocean/src/elementsd"
+ENABLE_LOGGING = False
 
 def main():
+    # GENERATE KEYS AND SINGBLOCK SCRIPT FOR SIGNING OF NEW BLOCKS
     num_of_nodes = 3
     num_of_sigs = 2
     keys = []
@@ -45,6 +47,7 @@ def main():
 
         signblockarg = "-signblockscript=522103d517f6e9affa60000a08d478970e6bbfa45d63b1967ed1e066dd46b802edb2a62102afc18e8a7ff988ca1ae7b659cb09a79852d301c2283e18cba1faf7a0b020b1a22102edd8080e31f05c68cf68a97782ac97744e86ba19dfd3ba68e597f10868ee5bc453ae"
 
+    # INIT THE OCEAN MAIN NODES
     elements_nodes = []
     elements_datadirs = []
     for i in range(0, num_of_nodes): # spawn elements signing node
@@ -55,25 +58,25 @@ def main():
         shutil.copyfile(confdir, datadir+"/elements.conf")
         mainconf = loadConfig(confdir)
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
-        e = startelementsd(datadir, mainconf, signblockarg)
+        e = startelementsd(ELEMENTS_PATH, datadir, mainconf, signblockarg)
         time.sleep(5)
         elements_nodes.append(e)
         e.importprivkey(keys[i])
         time.sleep(2)
 
-    '''
-    logging.basicConfig(
-            format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
-            level=logging.INFO
-            )
-    '''
+    if ENABLE_LOGGING:
+        logging.basicConfig(
+                format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
+                level=logging.INFO
+                )
 
     # EXPLORER FULL NODE
     explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    elements_datadirs.append(explorer_datadir)
     os.makedirs(explorer_datadir)
     shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
     explconf = loadConfig("explorer/elements.conf")
-    ee = startelementsd(explorer_datadir, explconf, signblockarg)
+    ee = startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, signblockarg)
     time.sleep(5)
 
     node_signers = []
@@ -84,7 +87,7 @@ def main():
     for node in node_signers:
         node.start()
 
-    client = Client()
+    client = Client(ELEMENTS_PATH, signblockarg, False)
     client.start()
 
     try:

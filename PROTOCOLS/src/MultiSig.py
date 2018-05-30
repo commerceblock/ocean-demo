@@ -1,34 +1,21 @@
 #!/usr/bin/env python3
-from authproxy import AuthServiceProxy, JSONRPCException
+from src.authproxy import AuthServiceProxy, JSONRPCException
 import os
 import random
 import sys
 import time
 import shutil
 import subprocess
+from src.util import *
 
 class MultiSig():
-    def __init__(self, nodes, sigs, datadir, elements):
+    def __init__(self, nodes, sigs, datadir, elementsdir):
         self.num_of_nodes = nodes
         self.num_of_sigs = sigs
         self.datadir = datadir
-        self.elements = elements
+        self.elements_dir = elementsdir
         self.privkeys = []
         self.multisig = ""
-
-    def startelementsd(self, datadir, conf, args=""):
-        subprocess.Popen((self.elements + "  -datadir="+datadir+" "+args).split(), stdout=subprocess.PIPE)
-        return AuthServiceProxy("http://"+conf["rpcuser"]+":"+conf["rpcpassword"]+"@127.0.0.1:"+conf["rpcport"])
-
-    def loadConfig(self, filename):
-        conf = {}
-        with open(filename) as f:
-            for line in f:
-                if len(line) == 0 or line[0] == "#" or len(line.split("=")) != 2:
-                    continue
-                conf[line.split("=")[0]] = line.split("=")[1].strip()
-        conf["filename"] = filename
-        return conf
 
     def generate(self):
         pubkeys = []
@@ -36,8 +23,8 @@ class MultiSig():
             temp_datadir = "/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
             os.makedirs(temp_datadir)
             shutil.copyfile(self.datadir, temp_datadir+"/elements.conf")
-            conf = self.loadConfig(self.datadir)
-            e = self.startelementsd(temp_datadir, conf)
+            conf = loadConfig(self.datadir)
+            e = startelementsd(self.elements_dir, temp_datadir, conf)
             time.sleep(5)
 
             addr = e.getnewaddress()
@@ -55,8 +42,8 @@ class MultiSig():
         temp_datadir = "/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
         os.makedirs(temp_datadir)
         shutil.copyfile(self.datadir, temp_datadir+"/elements.conf")
-        conf = self.loadConfig(self.datadir)
-        e = self.startelementsd(temp_datadir, conf)
+        conf = loadConfig(self.datadir)
+        e = startelementsd(self.elements_dir, temp_datadir, conf)
         time.sleep(5)
         self.multisig = e.createmultisig(self.num_of_sigs, pubkeys)
 

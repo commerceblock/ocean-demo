@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-from authproxy import AuthServiceProxy, JSONRPCException
+from src.authproxy import JSONRPCException
 import threading
 import multiprocessing
 import json
 from kafka import KafkaConsumer, KafkaProducer
 from time import sleep, time
 
+KAFKA_SERVER = 'localhost:9092'
 TOPIC_NEW_BLOCK = 'new-block'
 TOPIC_NEW_SIG = 'new-sig'
 TOTAL = 5
 INTERVAL = 30
-KAFKA_SERVER = 'localhost:9092'
 
 class Producer(threading.Thread):
     def __init__(self, height, block):
