@@ -7,7 +7,7 @@ A demonstration of protocols used by the Ocean network, including federated sign
 2. pip3 install requirements.txt
 3. python3 demo.py
 
-### MultiSig
+### MultiSig
 
 Generate multisig script and keys using the MultiSig class (M out of N).
 
