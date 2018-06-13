@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import threading
 import time
+import random
 
 ISSUANCE = 10000000
 REISSUANCE = 0
@@ -21,11 +22,11 @@ class AssetIssuance(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
-    def run(self): 
+    def run(self):
         while not self.stop_event.is_set():
             addr = self.elements.getnewaddress()
             time.sleep(2)
-            self.elements.sendtoaddress(addr, 2, "", "", False, self.asset)
+            self.elements.sendtoaddress(addr, random.randint(1,10), "", "", False, self.asset)
             time.sleep(2)
             time.sleep(self.interval)
 

@@ -2,6 +2,7 @@
 from src.authproxy import AuthServiceProxy, JSONRPCException
 import time
 import multiprocessing
+import random
 from src.util import *
 from src.AssetIssuance import AssetIssuance
 
@@ -59,7 +60,7 @@ class Client(multiprocessing.Process):
             issuer.stop()
         self.stop_event.set()
 
-    def run(self): 
+    def run(self):
         myTurn = True
         while not self.stop_event.is_set():
             if self.my_issuance:
@@ -67,10 +68,10 @@ class Client(multiprocessing.Process):
                 time.sleep(2)
                 self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 1)
                 time.sleep(2)
-                self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 2, "", "", False, self.assets[1 if myTurn else 0])
+                self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, random.randint(1,10), "", "", False, self.assets[1 if myTurn else 0])
                 time.sleep(2)
                 myTurn = not myTurn
-            
+
             time.sleep(self.interval)
             if self.stop_event.is_set():
                 break
@@ -83,6 +84,6 @@ if __name__ == "__main__":
     try:
         while 1:
             time.sleep(300)
-       
+
     except KeyboardInterrupt:
         c.stop()
