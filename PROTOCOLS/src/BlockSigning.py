@@ -10,7 +10,7 @@ KAFKA_SERVER = 'localhost:9092'
 TOPIC_NEW_BLOCK = 'new-block'
 TOPIC_NEW_SIG = 'new-sig'
 TOTAL = 5
-INTERVAL = 30
+INTERVAL = 60
 
 class Producer(threading.Thread):
     def __init__(self, height, block):
@@ -25,7 +25,7 @@ class Producer(threading.Thread):
         self.stop_event.set()
 
     def run(self):
-        self.producer.send(TOPIC_NEW_BLOCK, 
+        self.producer.send(TOPIC_NEW_BLOCK,
                     key=str.encode('{}'.format(self.new_height)),
                     value=str.encode(self.block))
 
@@ -63,10 +63,11 @@ class Consumer(threading.Thread):
                         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER,
                                                  value_serializer=lambda v: json.dumps(v).encode('utf-8'))
                         producer.send(self.sig_topic, reply)
+                        print("node {} - height {}".format(self.sig_topic, self.height))
                         producer.close()
                     except JSONRPCException as error:
                         print(error)
-                            
+
             if self.stop_event.is_set():
                     break
 
@@ -97,8 +98,8 @@ class BlockSigning(multiprocessing.Process):
             height = self.elements.getblockcount()
             block = ""
             print("blockcount:{}".format(height))
-                
-            if self.id != int(step): 
+
+            if self.id != int(step):
                 # NOT OUR TURN - SEND SIGNATURE ONLY
                 print("node {} - consumer step".format(self.id))
                 c = Consumer(self.id, height, self.elements)
@@ -128,6 +129,7 @@ class BlockSigning(multiprocessing.Process):
                 try:
                     for message in master_consumer:
                         if message.topic in self.sig_topics and int(message.value.get("key", ""))>height:
+                            print("node {} - sig from {} with key {}".format(self.id, message.topic, message.value.get("key", "")))
                             sigs.append(message.value.get("sig", ""))
                 except Exception as ex:
                     print("serialization failed {}".format(ex))

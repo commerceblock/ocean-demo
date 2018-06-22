@@ -7,7 +7,7 @@ from src.util import *
 from src.AssetIssuance import AssetIssuance
 
 TOTAL = 2
-INTERVAL = 10
+INTERVAL = 60
 ASSETS = ["BTC", "ETH"]
 ISSUANCE = 1000000
 REISSUANCE = 0
