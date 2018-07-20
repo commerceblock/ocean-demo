@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
-from src.authproxy import AuthServiceProxy, JSONRPCException
 import os
 import random
 import sys
 import time
-import subprocess
 import shutil
 import logging
 import json
+import util
 from decimal import *
 from pdb import set_trace
-from src.util import *
-from src.MultiSig import MultiSig
-from src.BlockSigning import BlockSigning
+from MultiSig import MultiSig
+from BlockSigning import BlockSigning
+from test_framework.authproxy import AuthServiceProxy, JSONRPCException
 from client import Client
 
 ELEMENTS_PATH = "../../ocean/src/elementsd"
 ENABLE_LOGGING = False
+BLOCK_TIME = 60
+GENERATE_KEYS = False
 
 def main():
     # GENERATE KEYS AND SINGBLOCK SCRIPT FOR SIGNING OF NEW BLOCKS
@@ -24,41 +25,36 @@ def main():
     num_of_sigs = 2
     keys = []
     signblockarg = ""
-    if len(sys.argv) == 3: # generate new signing keys and multisig
-        num_of_sigs = int(sys.argv[1])
-        num_of_nodes = int(sys.argv[2])
+
+    if GENERATE_KEYS:  # generate new signing keys and multisig
         if num_of_sigs > num_of_nodes:
-            raise ValueError("Num of sigs cannot be larger than num of nodes")
+                raise ValueError("Num of sigs cannot be larger than num of nodes")
+        sig = MultiSig(num_of_nodes, num_of_sigs)
+        keys = sig.wifs
+        signblockarg = "-signblockscript={}".format(sig.script)
+        with open('federation_data.json', 'w') as data_file:
+            data = {"keys" : keys, "signblockarg" : signblockarg}
+            json.dump(data, data_file)
 
-        print("Generating {} of {} multisig".format(num_of_sigs, num_of_nodes))
-        sig = MultiSig(num_of_nodes, num_of_sigs, "../main/elements.conf", ELEMENTS_PATH)
-        sig.generate()
-        # THIS NEWLY GENERATED KEYS WILL HAVE TO BE COPIED TO OTHER NODES IN THE DEMO
-        keys = sig.privkeys
-        print(keys)
-        signblockarg = "-signblockscript={}".format(sig.multisig["redeemScript"])
-        print("Generated: {}".format(signblockarg))
-    else: # use hardcoded keys and multisig
-        print("Using hardcoded keys and multisig")
-
-        keys = ['Kz4aMbbciZrjrNBi4rwwrTemGKbj9qCdVVRKXAvyt1YK1mPFpRG8',
-                'Ky4A1C5xeTDSR4SWey6Lees9WHjGTfgVAK3vWngCjWQDFs5UqHx3',
-                'L5dPkjz7hzhGCfYAd19fDWsetdCCwUPRPtt3bLh7SSTrh3DFNY34']
-
-        signblockarg = "-signblockscript=522103d517f6e9affa60000a08d478970e6bbfa45d63b1967ed1e066dd46b802edb2a62102afc18e8a7ff988ca1ae7b659cb09a79852d301c2283e18cba1faf7a0b020b1a22102edd8080e31f05c68cf68a97782ac97744e86ba19dfd3ba68e597f10868ee5bc453ae"
+    else:   # use hardcoded keys and multisig
+        with open('federation_data.json') as data_file:
+            data = json.load(data_file)
+        keys = data["keys"]
+        signblockarg = data["signblockarg"]
 
     # INIT THE OCEAN MAIN NODES
     elements_nodes = []
-    elements_datadirs = []
-    for i in range(0, num_of_nodes): # spawn elements signing node
-        confdir="main"+str(i)+"/elements.conf"
-        datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    tmpdir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+    for i in range(0, num_of_nodes):
+        datadir = tmpdir + "/main" + str(i)
         os.makedirs(datadir)
-        elements_datadirs.append(datadir)
+
+        confdir="main"+str(i)+"/elements.conf"
         shutil.copyfile(confdir, datadir+"/elements.conf")
-        mainconf = loadConfig(confdir)
+        mainconf = util.loadConfig(confdir)
+
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
-        e = startelementsd(ELEMENTS_PATH, datadir, mainconf, signblockarg)
+        e = util.startelementsd(ELEMENTS_PATH, datadir, mainconf, signblockarg)
         time.sleep(5)
         elements_nodes.append(e)
         e.importprivkey(keys[i])
@@ -71,20 +67,17 @@ def main():
                 )
 
     # EXPLORER FULL NODE
-    explorer_datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
-    elements_datadirs.append(explorer_datadir)
+    explorer_datadir=tmpdir+"/explorer"
     os.makedirs(explorer_datadir)
     shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
-    explconf = loadConfig("explorer/elements.conf")
-    ee = startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, signblockarg)
+    explconf = util.loadConfig("explorer/elements.conf")
+    ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, signblockarg)
     time.sleep(5)
 
     node_signers = []
-    for i in range(10, 10+num_of_nodes):
-        node = BlockSigning(i, elements_nodes[i%num_of_nodes], num_of_nodes)
+    for i in range(num_of_nodes):
+        node = BlockSigning(i, elements_nodes[i], num_of_nodes, BLOCK_TIME)
         node_signers.append(node)
-
-    for node in node_signers:
         node.start()
 
     client = Client(ELEMENTS_PATH, signblockarg, False)
@@ -93,7 +86,7 @@ def main():
     try:
         while 1:
             time.sleep(300)
-       
+
     except KeyboardInterrupt:
         for node in node_signers:
             node.stop()
@@ -104,8 +97,7 @@ def main():
         ee.stop()
         client.stop()
 
-        for datadir in elements_datadirs:
-            shutil.rmtree(datadir)
+        shutil.rmtree(tmpdir)
 
 if __name__ == "__main__":
     main()

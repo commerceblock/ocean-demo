@@ -7,6 +7,20 @@ A demonstration of protocols used by the Ocean network, including federated sign
 2. pip3 install requirements.txt
 3. python3 demo.py
 
+## Running Kafka
+- Install kafka
+
+    `brew install kafka`
+
+- Add bin path to PATH in bash profile
+
+    `export PATH="$PATH:/usr/local/Cellar/kafka/1.1.0/bin/"`
+
+- Different services
+    - `brew services start kafka`
+    - `brew services stop kafka`
+    - `kafka-topics --zookeeper localhost:2181 --delete --topic new-block`
+
 ### MultiSig
 
 Generate multisig script and keys using the MultiSig class (M out of N).

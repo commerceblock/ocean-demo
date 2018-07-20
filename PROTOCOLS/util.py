@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from src.authproxy import AuthServiceProxy, JSONRPCException
 import os
 import random
 import sys
 import time
 import subprocess
 import shutil
+from test_framework.authproxy import AuthServiceProxy, JSONRPCException
 
 def startelementsd(elementspath, datadir, conf, args=""):
     subprocess.Popen((elementspath+"  -datadir="+datadir+" "+args).split(), stdout=subprocess.PIPE)
@@ -20,4 +20,3 @@ def loadConfig(filename):
             conf[line.split("=")[0]] = line.split("=")[1].strip()
     conf["filename"] = filename
     return conf
-    

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-from src.authproxy import AuthServiceProxy, JSONRPCException
 import time
 import multiprocessing
 import random
-from src.util import *
-from src.AssetIssuance import AssetIssuance
+from util import *
+from AssetIssuance import AssetIssuance
+from test_framework.authproxy import AuthServiceProxy, JSONRPCException
 
 TOTAL = 2
 INTERVAL = 60
@@ -19,21 +19,22 @@ class Client(multiprocessing.Process):
         self.stop_event = multiprocessing.Event()
         self.elements_dir = elementsdir
         self.elements_nodes = []
-        self.elements_datadirs = []
         self.num_of_nodes = TOTAL
         self.assets = ASSETS
         self.my_issuance = myissuance
         self.issuers = []
         self.interval = INTERVAL
         self.signblockarg = signblockarg
+        self.tmpdir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
 
         for i in range(0, self.num_of_nodes): # spawn elements signing node
-            confdir="client"+str(i)+"/elements.conf"
-            datadir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
+            datadir = self.tmpdir + "/client" + str(i)
             os.makedirs(datadir)
-            self.elements_datadirs.append(datadir)
+
+            confdir="client"+str(i)+"/elements.conf"
             shutil.copyfile(confdir, datadir+"/elements.conf")
             mainconf = loadConfig(confdir)
+
             print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
             e = startelementsd(self.elements_dir, datadir, mainconf, signblockarg)
             time.sleep(10)
@@ -54,8 +55,7 @@ class Client(multiprocessing.Process):
     def stop(self):
         for e in self.elements_nodes:
             e.stop()
-        for datadir in self.elements_datadirs:
-            shutil.rmtree(datadir)
+        shutil.rmtree(self.tmpdir)
         for issuer in self.issuers:
             issuer.stop()
         self.stop_event.set()

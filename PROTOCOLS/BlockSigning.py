@@ -1,30 +1,23 @@
 #!/usr/bin/env python
-from src.authproxy import JSONRPCException
-import threading
-import multiprocessing
 import json
 from kafka import KafkaConsumer, KafkaProducer
 from time import sleep, time
+from test_framework.authproxy import JSONRPCException
+from Daemon import DaemonThread, DaemonProcess
 
 KAFKA_SERVER = 'localhost:9092'
 TOPIC_NEW_BLOCK = 'new-block'
 TOPIC_NEW_SIG = 'new-sig'
-TOTAL = 5
-INTERVAL = 60
 
-class Producer(threading.Thread):
+class Producer(DaemonThread):
     def __init__(self, height, block):
-        threading.Thread.__init__(self)
-        self.stop_event = threading.Event()
-        self.daemon = True
+        super().__init__()
         self.new_height = height + 1
         self.block = block
         self.producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
 
-    def stop(self):
-        self.stop_event.set()
-
     def run(self):
+        # send new block proposal
         self.producer.send(TOPIC_NEW_BLOCK,
                     key=str.encode('{}'.format(self.new_height)),
                     value=str.encode(self.block))
@@ -34,11 +27,9 @@ class Producer(threading.Thread):
 
         self.producer.close()
 
-class Consumer(threading.Thread):
+class Consumer(DaemonThread):
     def __init__(self, id, height, elements):
-        threading.Thread.__init__(self)
-        self.stop_event = threading.Event()
-        self.daemon = True
+        super().__init__()
         self.sig_topic = TOPIC_NEW_SIG + "{}".format(id)
         self.height = height
         self.elements = elements
@@ -46,12 +37,10 @@ class Consumer(threading.Thread):
                              auto_offset_reset='earliest',
                              consumer_timeout_ms=1000)
 
-    def stop(self):
-        self.stop_event.set()
-
     def run(self):
         self.consumer.subscribe([TOPIC_NEW_BLOCK])
 
+        # wait for new block proposal and sign block when received
         while not self.stop_event.is_set():
             for message in self.consumer:
                 new_height = int(message.key.decode())
@@ -63,45 +52,33 @@ class Consumer(threading.Thread):
                         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER,
                                                  value_serializer=lambda v: json.dumps(v).encode('utf-8'))
                         producer.send(self.sig_topic, reply)
-                        print("node {} - height {}".format(self.sig_topic, self.height))
                         producer.close()
                     except JSONRPCException as error:
                         print(error)
 
-            if self.stop_event.is_set():
-                    break
-
         self.consumer.close()
 
-class BlockSigning(multiprocessing.Process):
-    def __init__(self, id, elements, num_of_nodes):
-        multiprocessing.Process.__init__(self)
-        self.stop_event = multiprocessing.Event()
-        self.daemon = True
+class BlockSigning(DaemonProcess):
+    def __init__(self, id, elements, num_of_nodes, block_time):
+        super().__init__()
         self.elements = elements
-        self.interval = INTERVAL
-
-        global TOTAL
-        TOTAL = num_of_nodes
-        self.id = id % TOTAL
-        self.sig_topics = [TOPIC_NEW_SIG + "{}".format(i) for i in range(0,TOTAL)]
-
-    def stop(self):
-        self.stop_event.set()
+        self.interval = block_time
+        self.total = num_of_nodes
+        self.id = id
+        self.sig_topics = [TOPIC_NEW_SIG + "{}".format(i) for i in range(0,self.total)]
 
     def run(self):
         while not self.stop_event.is_set():
             sleep(self.interval - time() % self.interval)
             start_time = int(time())
-            step = int(time()) % (self.interval * TOTAL) / self.interval
+            step = int(time()) % (self.interval * self.total) / self.interval
 
             height = self.elements.getblockcount()
             block = ""
-            print("blockcount:{}".format(height))
 
             if self.id != int(step):
                 # NOT OUR TURN - SEND SIGNATURE ONLY
-                print("node {} - consumer step".format(self.id))
+                print("node {} - consumer".format(self.id))
                 c = Consumer(self.id, height, self.elements)
                 c.start()
                 sleep(self.interval / 3)
@@ -109,7 +86,8 @@ class BlockSigning(multiprocessing.Process):
                 sleep(self.interval / 2 - (time() - start_time))
             else:
                 # FIRST PROPAGATE THE BLOCK
-                print("node {} - producer step".format(self.id))
+                print("blockcount:{}".format(height))
+                print("node {} - producer".format(self.id))
                 block = self.elements.getnewblockhex()
                 p = Producer(height, block)
                 p.start()
@@ -129,7 +107,6 @@ class BlockSigning(multiprocessing.Process):
                 try:
                     for message in master_consumer:
                         if message.topic in self.sig_topics and int(message.value.get("key", ""))>height:
-                            print("node {} - sig from {} with key {}".format(self.id, message.topic, message.value.get("key", "")))
                             sigs.append(message.value.get("sig", ""))
                 except Exception as ex:
                     print("serialization failed {}".format(ex))
