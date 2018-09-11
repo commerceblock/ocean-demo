@@ -21,16 +21,17 @@ class MultiSig():
     def initKeys(self):
         for i in range(self.num_of_nodes):
             k = key.CECKey()
+            k.set_compressed(True)
             pk_bytes = hashlib.sha256(str(random.getrandbits(256)).encode('utf-8')).digest()
             k.set_secretbytes(pk_bytes)
             self.keys.append(k)
-            self.wifs.append(address.byte_to_base58(pk_bytes, 239))
+            self.wifs.append(address.byte_to_base58(pk_bytes, 128))
 
     def generate(self):
         script = "{}".format(50 + self.num_of_sigs)
         for i in range(self.num_of_nodes):
             k = self.keys[i]
-            script += "41"
+            script += "21"
             script += codecs.encode(k.get_pubkey(), 'hex_codec').decode("utf-8")
         script += "{}".format(50 + self.num_of_nodes) # num keys
         script += "ae" # OP_CHECKMULTISIG

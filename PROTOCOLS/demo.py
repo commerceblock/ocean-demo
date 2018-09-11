@@ -25,6 +25,7 @@ def main():
     num_of_sigs = 2
     keys = []
     signblockarg = ""
+    coinbasearg = ""
 
     if GENERATE_KEYS:  # generate new signing keys and multisig
         if num_of_sigs > num_of_nodes:
@@ -32,8 +33,9 @@ def main():
         sig = MultiSig(num_of_nodes, num_of_sigs)
         keys = sig.wifs
         signblockarg = "-signblockscript={}".format(sig.script)
+        coinbasearg = "-con_mandatorycoinbase={}".format(sig.script)
         with open('federation_data.json', 'w') as data_file:
-            data = {"keys" : keys, "signblockarg" : signblockarg}
+            data = {"keys" : keys, "signblockarg" : signblockarg, "coinbasearg": coinbasearg}
             json.dump(data, data_file)
 
     else:   # use hardcoded keys and multisig
@@ -41,6 +43,7 @@ def main():
             data = json.load(data_file)
         keys = data["keys"]
         signblockarg = data["signblockarg"]
+        coinbasearg = data["coinbasearg"]
 
     # INIT THE OCEAN MAIN NODES
     elements_nodes = []
@@ -54,7 +57,7 @@ def main():
         mainconf = util.loadConfig(confdir)
 
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
-        e = util.startelementsd(ELEMENTS_PATH, datadir, mainconf, signblockarg)
+        e = util.startelementsd(ELEMENTS_PATH, datadir, mainconf, "{} {}".format(signblockarg, coinbasearg))
         time.sleep(5)
         elements_nodes.append(e)
         e.importprivkey(keys[i])
@@ -71,7 +74,7 @@ def main():
     os.makedirs(explorer_datadir)
     shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
     explconf = util.loadConfig("explorer/elements.conf")
-    ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, signblockarg)
+    ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, "{} {}".format(signblockarg, coinbasearg))
     time.sleep(5)
 
     node_signers = []
@@ -80,7 +83,7 @@ def main():
         node_signers.append(node)
         node.start()
 
-    client = Client(ELEMENTS_PATH, signblockarg, False)
+    client = Client(ELEMENTS_PATH, "{} {}".format(signblockarg, coinbasearg), False)
     client.start()
 
     try:
