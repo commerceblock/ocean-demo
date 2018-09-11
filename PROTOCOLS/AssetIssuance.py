@@ -24,9 +24,9 @@ class AssetIssuance(threading.Thread):
 
     def run(self):
         while not self.stop_event.is_set():
-            addr = self.elements.getnewaddress()
+            #addr = self.elements.getnewaddress()
             time.sleep(2)
-            self.elements.sendtoaddress(addr, random.randint(1,10), "", "", False, self.asset)
+            #self.elements.sendtoaddress(addr, random.randint(1,10), "", "", False, self.asset)
             time.sleep(2)
             time.sleep(self.interval)
 
