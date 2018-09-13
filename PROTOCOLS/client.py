@@ -13,7 +13,7 @@ ISSUANCE = 1000000
 REISSUANCE = 0
 
 class Client(multiprocessing.Process):
-    def __init__(self, elementsdir, signblockarg, myissuance=True):
+    def __init__(self, elementsdir, args, myfreecoins=False, freecoinkey=""):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self.stop_event = multiprocessing.Event()
@@ -21,10 +21,10 @@ class Client(multiprocessing.Process):
         self.elements_nodes = []
         self.num_of_nodes = TOTAL
         self.assets = ASSETS
-        self.my_issuance = myissuance
+        self.my_freecoins = myfreecoins
         self.issuers = []
         self.interval = INTERVAL
-        self.signblockarg = signblockarg
+        self.args = args
         self.tmpdir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
 
         for i in range(0, self.num_of_nodes): # spawn elements signing node
@@ -36,18 +36,20 @@ class Client(multiprocessing.Process):
             mainconf = loadConfig(confdir)
 
             print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
-            e = startelementsd(self.elements_dir, datadir, mainconf, signblockarg)
+            e = startelementsd(self.elements_dir, datadir, mainconf, self.args)
             time.sleep(10)
-            if not self.my_issuance:
+            if not self.my_freecoins:
                 issuer = AssetIssuance(e, self.interval)
                 issuer.start()
                 self.issuers.append(issuer)
             else:
+                e.importprivkey(freecoinkey)
+                time.sleep(2)
                 issue = e.issueasset(ISSUANCE, REISSUANCE, False)
                 entry = "-assetdir="+issue["asset"]+":"+self.assets[i]
                 e.stop()
                 time.sleep(5)
-                e = startelementsd(self.elements_dir, datadir, mainconf, signblockarg + " " + entry)
+                e = startelementsd(self.elements_dir, datadir, mainconf, self.args + " " + entry)
                 time.sleep(10)
                 print(e.listissuances())
             self.elements_nodes.append(e)
@@ -63,10 +65,8 @@ class Client(multiprocessing.Process):
     def run(self):
         myTurn = True
         while not self.stop_event.is_set():
-            if self.my_issuance:
+            if self.my_freecoins:
                 addr = self.elements_nodes[0 if myTurn else 1].getnewaddress()
-                time.sleep(2)
-                self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, 1)
                 time.sleep(2)
                 self.elements_nodes[1 if myTurn else 0].sendtoaddress(addr, random.randint(1,10), "", "", False, self.assets[1 if myTurn else 0])
                 time.sleep(2)

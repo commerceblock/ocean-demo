@@ -27,6 +27,11 @@ def main():
     signblockarg = ""
     coinbasearg = ""
 
+    controlscript = "512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae"
+    issuecontrolarg = "-issuecontrolscript=" + controlscript
+    coindestarg = "-initialfreecoinsdestination=" + controlscript
+    coindestkey = "KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
+
     if GENERATE_KEYS:  # generate new signing keys and multisig
         if num_of_sigs > num_of_nodes:
                 raise ValueError("Num of sigs cannot be larger than num of nodes")
@@ -45,6 +50,8 @@ def main():
         signblockarg = data["signblockarg"]
         coinbasearg = data["coinbasearg"]
 
+    extra_args =  "{} {} {} {}".format(signblockarg, coinbasearg, issuecontrolarg, coindestarg)
+
     # INIT THE OCEAN MAIN NODES
     elements_nodes = []
     tmpdir="/tmp/"+''.join(random.choice('0123456789ABCDEF') for i in range(5))
@@ -57,7 +64,7 @@ def main():
         mainconf = util.loadConfig(confdir)
 
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
-        e = util.startelementsd(ELEMENTS_PATH, datadir, mainconf, "{} {}".format(signblockarg, coinbasearg))
+        e = util.startelementsd(ELEMENTS_PATH, datadir, mainconf, extra_args)
         time.sleep(5)
         elements_nodes.append(e)
         e.importprivkey(keys[i])
@@ -74,7 +81,7 @@ def main():
     os.makedirs(explorer_datadir)
     shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
     explconf = util.loadConfig("explorer/elements.conf")
-    ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, "{} {}".format(signblockarg, coinbasearg))
+    ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, extra_args)
     time.sleep(5)
 
     node_signers = []
@@ -83,7 +90,7 @@ def main():
         node_signers.append(node)
         node.start()
 
-    client = Client(ELEMENTS_PATH, "{} {}".format(signblockarg, coinbasearg), False)
+    client = Client(ELEMENTS_PATH, extra_args, True, coindestkey)
     client.start()
 
     try:
