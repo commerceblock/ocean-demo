@@ -1,13 +1,14 @@
 # INITIAL SETUP
 rm -r ~/elementsdir-main ; rm -r ~/elementsdir1 ; rm -r ~/elementsdir-explorer
 mkdir ~/elementsdir-main ; mkdir ~/elementsdir1 ; mkdir ~/elementsdir-explorer
-mkdir ~/elementsdir1/terms-and-conditions ;
-mkdir ~/elementsdir-main/terms-and-conditions ;
+mkdir ~/elementsdir1/terms-and-conditions ; mkdir ~/elementsdir-main/terms-and-conditions ;
+mkdir ~/elementsdir1/asset-mapping ; mkdir ~/elementsdir-main/asset-mapping ;
 
 cp ./main/elements.conf ~/elementsdir-main/elements.conf
 cp ./client-1/elements.conf ~/elementsdir1/elements.conf
 cp ./explorer/elements.conf ~/elementsdir-explorer/elements.conf
 cp latest.txt ~/elementsdir-main/terms-and-conditions/latest.txt ; cp latest.txt ~/elementsdir1/terms-and-conditions/latest.txt
+cp latest.json ~/elementsdir-main/asset-mapping/latest.json ; cp latest.json ~/elementsdir1/asset-mapping/latest.json
 
 shopt -s expand_aliases
 
