@@ -23,24 +23,30 @@ def main():
     # GENERATE KEYS AND SINGBLOCK SCRIPT FOR SIGNING OF NEW BLOCKS
     num_of_nodes = 3
     num_of_sigs = 2
+    num_of_clients = 2
     keys = []
     signblockarg = ""
     coinbasearg = ""
-
-    controlscript = "512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae"
-    issuecontrolarg = "-issuecontrolscript=" + controlscript
-    coindestarg = "-initialfreecoinsdestination=" + controlscript
-    coindestkey = "KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
+    issuecontrolarg = ""
+    coindestarg = ""
+    coindestkey = ""
 
     if GENERATE_KEYS:  # generate new signing keys and multisig
         if num_of_sigs > num_of_nodes:
                 raise ValueError("Num of sigs cannot be larger than num of nodes")
-        sig = MultiSig(num_of_nodes, num_of_sigs)
-        keys = sig.wifs
-        signblockarg = "-signblockscript={}".format(sig.script)
-        coinbasearg = "-con_mandatorycoinbase={}".format(sig.script)
+        block_sig = MultiSig(num_of_nodes, num_of_sigs)
+        keys = block_sig.wifs
+        signblockarg = "-signblockscript={}".format(block_sig.script)
+        coinbasearg = "-con_mandatorycoinbase={}".format(block_sig.script)
+
+        issue_sig = MultiSig(1, 1)
+        coindestkey = issue_sig.wifs[0]
+        coindestarg = "-initialfreecoinsdestination={}".format(issue_sig.script)
+        issuecontrolarg = "-issuecontrolscript={}".format(issue_sig.script)
+
         with open('federation_data.json', 'w') as data_file:
-            data = {"keys" : keys, "signblockarg" : signblockarg, "coinbasearg": coinbasearg}
+            data = {"keys" : keys, "signblockarg" : signblockarg, "coinbasearg": coinbasearg, "coindestkey" : coindestkey,
+                "coindestarg": coindestarg, "issuecontrolarg": issuecontrolarg}
             json.dump(data, data_file)
 
     else:   # use hardcoded keys and multisig
@@ -49,6 +55,9 @@ def main():
         keys = data["keys"]
         signblockarg = data["signblockarg"]
         coinbasearg = data["coinbasearg"]
+        issuecontrolarg = data["issuecontrolarg"]
+        coindestarg = data["coindestarg"]
+        coindestkey = data["coindestkey"]
 
     extra_args =  "{} {} {} {}".format(signblockarg, coinbasearg, issuecontrolarg, coindestarg)
 
@@ -90,7 +99,7 @@ def main():
         node_signers.append(node)
         node.start()
 
-    client = Client(ELEMENTS_PATH, extra_args, True, coindestkey)
+    client = Client(ELEMENTS_PATH, num_of_clients, extra_args, True, coindestkey)
     client.start()
 
     try:

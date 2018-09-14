@@ -9,9 +9,10 @@ from test_framework import (
 from util import *
 
 class MultiSig():
-    def __init__(self, nodes, sigs):
+    def __init__(self, nodes, sigs, compressed=True):
         self.num_of_nodes = nodes
         self.num_of_sigs = sigs
+        self.is_compressed = compressed
         self.keys = []
         self.wifs = []
         self.script = ""
@@ -21,8 +22,9 @@ class MultiSig():
     def initKeys(self):
         for i in range(self.num_of_nodes):
             k = key.CECKey()
-            k.set_compressed(True)
+            k.set_compressed(self.is_compressed)
             pk_bytes = hashlib.sha256(str(random.getrandbits(256)).encode('utf-8')).digest()
+            pk_bytes = pk_bytes + b'\x01' if self.is_compressed else pk_bytes
             k.set_secretbytes(pk_bytes)
             self.keys.append(k)
             self.wifs.append(address.byte_to_base58(pk_bytes, 128))

@@ -13,11 +13,9 @@ class AssetIssuance(threading.Thread):
         self.daemon = True
         self.elements = elements
         self.interval = interval
-
         issue = self.elements.issueasset(ISSUANCE, REISSUANCE, False)
         self.asset = issue["asset"]
         time.sleep(5)
-        print(self.elements.listissuances())
 
     def stop(self):
         self.stop_event.set()
