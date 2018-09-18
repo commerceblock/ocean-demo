@@ -7,6 +7,7 @@ import shutil
 import logging
 import json
 import util
+import argparse
 from decimal import *
 from pdb import set_trace
 from MultiSig import MultiSig
@@ -15,12 +16,21 @@ from test_framework.authproxy import AuthServiceProxy, JSONRPCException
 from client import Client
 
 ELEMENTS_PATH = "../../ocean/src/elementsd"
-ENABLE_LOGGING = False
-BLOCK_TIME = 60
-GENERATE_KEYS = False
+DEFAULT_ENABLE_LOGGING = False
+DEFAULT_GENERATE_KEYS = False
+DEFAULT_RETAIN_DAEMONS = False
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--enable-logging', default=DEFAULT_ENABLE_LOGGING, type=bool, help="Enable logging (default: %(default)s)")
+    parser.add_argument('-g', '--generate-keys', default=DEFAULT_GENERATE_KEYS, type=bool, help="Generate keys for block generation and free coin issuance (default: %(default)s)")
+    parser.add_argument('-r', '--retain-daemons', default=DEFAULT_RETAIN_DAEMONS, type=bool, help="Retain daemons and datadirs when demo stops (default: %(default)s)")
+    return parser.parse_args()
 
 def main():
     # GENERATE KEYS AND SINGBLOCK SCRIPT FOR SIGNING OF NEW BLOCKS
+    args = parse_args()
+    block_time = 60
     num_of_nodes = 3
     num_of_sigs = 2
     num_of_clients = 2
@@ -31,7 +41,7 @@ def main():
     coindestarg = ""
     coindestkey = ""
 
-    if GENERATE_KEYS:  # generate new signing keys and multisig
+    if args.generate_keys:  # generate new signing keys and multisig
         if num_of_sigs > num_of_nodes:
                 raise ValueError("Num of sigs cannot be larger than num of nodes")
         block_sig = MultiSig(num_of_nodes, num_of_sigs)
@@ -79,7 +89,7 @@ def main():
         e.importprivkey(keys[i])
         time.sleep(2)
 
-    if ENABLE_LOGGING:
+    if args.enable_logging:
         logging.basicConfig(
                 format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
                 level=logging.INFO
@@ -95,7 +105,7 @@ def main():
 
     node_signers = []
     for i in range(num_of_nodes):
-        node = BlockSigning(i, elements_nodes[i], num_of_nodes, BLOCK_TIME)
+        node = BlockSigning(i, elements_nodes[i], num_of_nodes, block_time)
         node_signers.append(node)
         node.start()
 
@@ -107,16 +117,17 @@ def main():
             time.sleep(300)
 
     except KeyboardInterrupt:
-        for node in node_signers:
-            node.stop()
+        if not args.retain_daemons:
+            for node in node_signers:
+                node.stop()
 
-        for elements in elements_nodes:
-            elements.stop()
+            for elements in elements_nodes:
+                elements.stop()
 
-        ee.stop()
-        client.stop()
+            ee.stop()
+            client.stop()
 
-        shutil.rmtree(tmpdir)
+            shutil.rmtree(tmpdir)
 
 if __name__ == "__main__":
     main()
