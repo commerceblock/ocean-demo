@@ -77,9 +77,11 @@ def main():
     for i in range(0, num_of_nodes):
         datadir = tmpdir + "/main" + str(i)
         os.makedirs(datadir)
+        os.makedirs(datadir + "/terms-and-conditions")
 
         confdir="main"+str(i)+"/elements.conf"
         shutil.copyfile(confdir, datadir+"/elements.conf")
+        shutil.copyfile('../latest.txt', datadir + "/terms-and-conditions/latest.txt")
         mainconf = util.loadConfig(confdir)
 
         print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
@@ -98,7 +100,9 @@ def main():
     # EXPLORER FULL NODE
     explorer_datadir=tmpdir+"/explorer"
     os.makedirs(explorer_datadir)
+    os.makedirs(explorer_datadir + "/terms-and-conditions")
     shutil.copyfile("explorer/elements.conf", explorer_datadir+"/elements.conf")
+    shutil.copyfile('../latest.txt', explorer_datadir + "/terms-and-conditions/latest.txt")
     explconf = util.loadConfig("explorer/elements.conf")
     ee = util.startelementsd(ELEMENTS_PATH, explorer_datadir, explconf, extra_args)
     time.sleep(5)

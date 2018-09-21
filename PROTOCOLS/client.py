@@ -28,9 +28,11 @@ class Client(multiprocessing.Process):
         for i in range(0, self.num_of_clients): # spawn elements signing node
             datadir = self.tmpdir + "/client" + str(i)
             os.makedirs(datadir)
+            os.makedirs(datadir + "/terms-and-conditions")
 
             confdir="client"+str(i)+"/elements.conf"
             shutil.copyfile(confdir, datadir+"/elements.conf")
+            shutil.copyfile('../latest.txt', datadir + "/terms-and-conditions/latest.txt")
             mainconf = loadConfig(confdir)
 
             print("Starting node {} with datadir {} and confdir {}".format(i, datadir, confdir))
