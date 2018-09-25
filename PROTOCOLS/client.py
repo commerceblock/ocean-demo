@@ -7,8 +7,9 @@ from AssetIssuance import AssetIssuance
 from test_framework.authproxy import AuthServiceProxy, JSONRPCException
 
 WAIT_TIME = 60
-ISSUANCE = 100000
-REISSUANCE = 0
+ISSUANCE_AMOUNT = 100000
+REISSUANCE_AMOUNT = 50
+REISSUANCE_TOKEN = 1
 
 class Client(multiprocessing.Process):
     def __init__(self, elementsdir, numofclients, args, myfreecoins=False, freecoinkey=""):
@@ -45,7 +46,7 @@ class Client(multiprocessing.Process):
             else:
                 e.importprivkey(freecoinkey)
                 time.sleep(2)
-                issue = e.issueasset(ISSUANCE, REISSUANCE, False)
+                issue = e.issueasset(ISSUANCE_AMOUNT, REISSUANCE_TOKEN, False)
                 self.assets[i] = issue["asset"]
                 self.elements_nodes[i] = e
 
@@ -65,6 +66,7 @@ class Client(multiprocessing.Process):
                 time.sleep(2)
                 self.elements_nodes[send_turn].sendtoaddress(addr, random.randint(1,10), "", "", False, self.assets[send_turn])
                 time.sleep(2)
+                self.elements_nodes[send_turn].reissueasset(self.assets[send_turn], REISSUANCE_AMOUNT)
                 send_turn = (send_turn + 1) % self.num_of_clients
 
             time.sleep(self.wait_time)
