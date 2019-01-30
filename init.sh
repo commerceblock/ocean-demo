@@ -32,7 +32,7 @@ KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"
-e-dae $SIGNBLOCKARG ; sleep 5
+e-dae $SIGNBLOCKARG ; sleep 15
 e-cli importprivkey $KEY ; sleep 1
 ./main/new_block.sh
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
@@ -57,7 +57,7 @@ echo "CBT balance and N_unspent before:"
 e-cli getwalletinfo | jq -r ".balance" | jq -r ".CBT"
 e-cli listunspent | grep vout | wc -l
 txid=`e-cli sendtoaddress $(e1-cli getnewaddress) 100`
-./main/new_block.sh
+./main/new_block.sh 5
 echo "CBT balance and N_unspent after. Output removed from local wallet list of unspent outputs but not submitted to memory pool."
 e-cli getwalletinfo | jq -r ".balance" | jq -r ".CBT"
 e-cli listunspent | grep vout | wc -l
