@@ -82,6 +82,13 @@ printf "mempool: "
 e-cli getrawmempool
 printf "\n"
 
+#WHITELISTING 2
+
+printf "User address self-whitelisting."
+e1-cli sendaddtowhitelisttx
+
+
+
 # ASSET ISSUANCE
 echo "***** Asset Issuance *****"
 
@@ -95,3 +102,4 @@ e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
 e-cli getrawmempool
 ./main/new_block.sh 10
 e-cli getblock $(e-cli getblockhash 3)
+
