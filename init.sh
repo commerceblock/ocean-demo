@@ -58,11 +58,28 @@ echo "e-cli getrawmempool"
 e-cli getrawmempool
 printf "\n"
 
+printf "Getting KYC key and raw public key from main."
+printf "\n"
+kycKey=`e-cli getnewaddress`
+kycDerivedPubKey=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
+kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+printf "Getting address and raw public key from client."
+printf "\n"
+clientAddress1=`e1-cli getnewaddress`
+clientPubKey1=`e1-cli validateaddress $clientAddress1 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+clientAddress2=`e1-cli getnewaddress`
+clientPubKey2=`e1-cli validateaddress $clientAddress2 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+clientAddress3=`e1-cli getnewaddress`
+clientPubKey3=`e1-cli validateaddress $clientAddress3 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+
+
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
-e-cli readwhitelist keys.main
-e-cli readwhitelist keys.client
-rm keys.main ; rm keys.client
+e-cli readwhitelist keys.main 
+e-cli readwhitelist keys.client $kycKey
+e1-cli readwhitelist keys.main 
+e1-cli readwhitelist keys.client $kycKey
+#rm keys.main ; rm keys.client
 
 printf "Transaction added to mempool after reading main node and client node derived keys:\ne-cli sendtoaddress \$(e1-cli getnewaddress) 100 -> "
 e-cli sendtoaddress $(e1-cli getnewaddress) 100
@@ -98,19 +115,6 @@ e-cli getblock $(e-cli getblockhash 3)
 
 #WHITELISTING 2
 
-printf "Getting KYC key and raw public key from main."
-printf "\n"
-kycKey=`e-cli getnewaddress`
-kycDerivedPubKey=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
-kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
-printf "Getting address and raw public key from client."
-printf "\n"
-clientAddress1=`e1-cli getnewaddress`
-clientPubKey1=`e1-cli validateaddress $clientAddress1 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
-clientAddress2=`e1-cli getnewaddress`
-clientPubKey2=`e1-cli validateaddress $clientAddress2 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
-clientAddress3=`e1-cli getnewaddress`
-clientPubKey3=`e1-cli validateaddress $clientAddress3 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
 
 main/new_block.sh 10
 printf "Main wallet balance:"

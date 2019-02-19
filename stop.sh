@@ -1,8 +1,8 @@
 shopt -s expand_aliases
-ELEMENTSPATH="../ocean/src"
-alias e-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir-main"
-alias e1-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir1"
-alias ee-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir-explorer"
+OCEANPATH="../ocean/src"
+alias e-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
+alias e1-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
+alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
 
 e-cli stop
 e1-cli stop
