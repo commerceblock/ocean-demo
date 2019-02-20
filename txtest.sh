@@ -23,8 +23,6 @@ echo "whitelist nlines:"
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 e1-cli sendaddtowhitelisttx "CBT" "10" "$kycPubKey"
 
-e1-cli dumpkycfile "kycfile.dat" "$kycPubKey"
-
 sleep 5
 source main/new_block.sh 6; 
 echo "whitelist nlines:"

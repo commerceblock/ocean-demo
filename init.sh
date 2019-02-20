@@ -30,11 +30,18 @@ alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
 SIGNBLOCKARG="-signblockscript=512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae" ; sleep 1
 KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
 
+
+
 # BLOCK SIGNING
 echo "***** Block Signing *****"
 e-dae $SIGNBLOCKARG ; sleep 5
 e-cli importprivkey $KEY ; sleep 1
 ./main/new_block.sh
+#Policy asset private keys
+e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D
+e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi
+e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp
+e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
@@ -49,6 +56,20 @@ printf "\n"
 printf "Client node cannot generate a new block. Block cound has not increased:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
+
+# ASSET ISSUANCE
+echo "***** Asset Issuance *****"
+
+issue=$(e-cli issueasset 100 1 false)
+asset=$(echo $issue | jq --raw-output '.asset')
+printf "Issuance\n $issue\n"
+printf "Asset $asset\n"
+
+e-cli sendtoaddress $(e1-cli getnewaddress) 80 "" "" false $asset
+e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
+e-cli getrawmempool
+./main/new_block.sh 10
+e-cli getblock $(e-cli getblockhash 3)
 
 # WHITELISTING
 echo "***** Whitelisting *****"
@@ -98,23 +119,6 @@ printf "\n"
 printf "mempool: "
 e-cli getrawmempool
 printf "\n"
-
-# ASSET ISSUANCE
-echo "***** Asset Issuance *****"
-
-issue=$(e-cli issueasset 100 1 false)
-asset=$(echo $issue | jq --raw-output '.asset')
-printf "Issuance\n $issue\n"
-printf "Asset $asset\n"
-
-e-cli sendtoaddress $(e1-cli getnewaddress) 80 "" "" false $asset
-e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
-e-cli getrawmempool
-./main/new_block.sh 10
-e-cli getblock $(e-cli getblockhash 3)
-
-#WHITELISTING 2
-
 
 main/new_block.sh 10
 printf "Main wallet balance:"
