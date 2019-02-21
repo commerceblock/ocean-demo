@@ -34,19 +34,28 @@ KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"
-e-dae $SIGNBLOCKARG ; sleep 5
-e-cli importprivkey $KEY ; sleep 1
+e-dae $SIGNBLOCKARG ; sleep 15
+e-cli importprivkey $KEY; sleep 1
+e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 5;
+e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 5;
+e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 5;
+e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 5;
+
 ./main/new_block.sh
-#Policy asset private keys
-e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D
-e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi
-e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp
-e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
 
+#Policy asset private keys
+e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 5;
+e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 5;
+e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 5;
+e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 5;
+
 e1-dae $SIGNBLOCKARG ; sleep 5
+
+
+
 ee-dae $SIGNBLOCKARG ; sleep 5
 printf "Block broadcast to client node:\ne1-cli getblockcount -> "
 e1-cli getblockcount
@@ -56,20 +65,6 @@ printf "\n"
 printf "Client node cannot generate a new block. Block cound has not increased:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
-
-# ASSET ISSUANCE
-echo "***** Asset Issuance *****"
-
-issue=$(e-cli issueasset 100 1 false)
-asset=$(echo $issue | jq --raw-output '.asset')
-printf "Issuance\n $issue\n"
-printf "Asset $asset\n"
-
-e-cli sendtoaddress $(e1-cli getnewaddress) 80 "" "" false $asset
-e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
-e-cli getrawmempool
-./main/new_block.sh 10
-e-cli getblock $(e-cli getblockhash 3)
 
 # WHITELISTING
 echo "***** Whitelisting *****"
@@ -84,6 +79,10 @@ printf "\n"
 kycKey=`e-cli getnewaddress`
 kycDerivedPubKey=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
 kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+
+kycKey2=`e-cli getnewaddress`
+kycDerivedPubKey2=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
+kycPubKey2=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
 printf "Getting address and raw public key from client."
 printf "\n"
 clientAddress1=`e1-cli getnewaddress`
@@ -96,9 +95,9 @@ clientPubKey3=`e1-cli validateaddress $clientAddress3 | grep \"derivedpubkey\" |
 
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
-e-cli readwhitelist keys.main 
+e-cli readwhitelist keys.main $kyckey2 
 e-cli readwhitelist keys.client $kycKey
-e1-cli readwhitelist keys.main 
+e1-cli readwhitelist keys.main $kyckey2
 e1-cli readwhitelist keys.client $kycKey
 #rm keys.main ; rm keys.client
 
@@ -176,4 +175,18 @@ printf "\n"
 main/new_block.sh 10
 e-cli dumpwhitelist whitelist.txt
 cat whitelist.txt
+
+# ASSET ISSUANCE
+echo "***** Asset Issuance *****"
+
+issue=$(e-cli issueasset 100 1 false)
+asset=$(echo $issue | jq --raw-output '.asset')
+printf "Issuance\n $issue\n"
+printf "Asset $asset\n"
+
+e-cli sendtoaddress $(e1-cli getnewaddress) 80 "" "" false $asset
+e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
+e-cli getrawmempool
+./main/new_block.sh 10
+e-cli getblock $(e-cli getblockhash 3)
 

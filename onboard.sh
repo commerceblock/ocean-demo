@@ -34,13 +34,20 @@ wfcd=76a914ddb13d1080354c1871123a4ca916ef38030c12c988ac
 #Get the whitetoken asset ID
 genhash=`e1-cli getblockhash 0`
 
-for tx in `e1-cli getblock $genhash | jq '.tx[]'`
+for tx in `e1-cli getblock $genhash | jq --raw-output '.tx[]'`
 do 
+echo "tx: $tx"
 rawtx=`e-cli getrawtransaction $tx`
-wlasset=`echo $rawtx | jq '.vout.[0].asset'`
+decoded=`e-cli decoderawtransaction $rawtx`
+scriptpubkeyhex=`echo $decoded | jq --raw-output '.vout [0].scriptPubKey.hex'`
+if [ $scriptpubkeyhex -ne $wlcd ]
+then
+continue
+fi
+wlasset=`echo $decoded | jq --raw-output '.vout [0].asset'`
 echo "Whitelist asset: $wlasset"
-wltxid=`echo $rawtx | jq '.txid'`
-wlvalue=`echo $rawtx | jq '.vout.[0].value'`
+wltxid=`echo $decoded | jq --raw-output '.txid'`
+wlvalue=`echo $decoded | jq --raw-output '.vout [0].value'`
 done
 
 
@@ -64,19 +71,21 @@ done
 #inputs=$inputs2
 #echo $inputs
 
-inputs="[{txid:$wltxid,vout:0}]"
+inputs="[{txid:\"$wltxid\",vout:\"0\",asset:\"$wlasset\"}]"
+
+
 
 #Generate a public key for the policy wallet                                                                                                                                      
 policyaddress=`e-cli getnewaddress`
 validateaddress=`e-cli validateaddress $policyaddress`
-policypubkey=`echo $validateaddress | jq '.pubkey'`
+policypubkey=`echo $validateaddress | jq --raw-output '.pubkey'`
 
-outputs="[{\"pubkey\":$policypubkey,\"value\":$amount,\"userkey\":\"$kycPubKey\"}]"
+outputs="[{\"pubkey\":\"$policypubkey\",\"value\":$amount,\"userkey\":\"$kycPubKey\"}]"
 echo $outputs
 
 echo "Creating tx:"
 
-tx=`e-cli createrawpolicytx $inputs $outputs 0 $asset`
+tx=`e-cli createrawpolicytx \"$inputs\" \"$outputs\"`
 
 echo $wltx1
 
@@ -88,7 +97,7 @@ echo $txs
 
 echo "Getting hex:"
 
-txsh=`echo $txs | jq '.hex' | sed -e 's/^"//' -e 's/"$//'`
+txsh=`echo $txs | jq --raw-output '.hex' | sed -e 's/^"//' -e 's/"$//'`
 
 echo $txsh
 
