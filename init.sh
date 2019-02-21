@@ -27,8 +27,8 @@ alias e1-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir1"
 alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
 alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
 
-SIGNBLOCKARG="-signblockscript=512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae" ; sleep 1
-KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
+SIGNBLOCKARG="-signblockscript=5121027d85472b0d42ba60e3b1030b07127f534c9858779fab474c04fcecf9f6c7ae9e51ae" ; sleep 1
+KEY="cQ26YCNFdihkhmrtwpixkDxXECuPMRNSDBZu84HyWBV984RaCXmc"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"

@@ -2,7 +2,7 @@ shopt -s expand_aliases
 
 OCEANPATH="../ocean/src"
 
-alias cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
+alias cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
 
 # Let's propose and accept some blocks, e1 is master!
 NEW_BLOCK=`cli getnewblockhex`
