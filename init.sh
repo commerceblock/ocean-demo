@@ -34,29 +34,22 @@ KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"
-e-dae $SIGNBLOCKARG ; sleep 15
+e-dae $SIGNBLOCKARG ; sleep 5
 e-cli importprivkey $KEY; sleep 1
-e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 5;
-e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 5;
-e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 5;
-e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 5;
-
 ./main/new_block.sh
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
 
 #Policy asset private keys
-e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 5;
-e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 5;
-e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 5;
-e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 5;
+e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 1;
+e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 1;
+e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 1;
+e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 1;
 
-e1-dae $SIGNBLOCKARG ; sleep 5
+e1-dae $SIGNBLOCKARG ; sleep 3
+ee-dae $SIGNBLOCKARG ; sleep 3
 
-
-
-ee-dae $SIGNBLOCKARG ; sleep 5
 printf "Block broadcast to client node:\ne1-cli getblockcount -> "
 e1-cli getblockcount
 printf "\n"
