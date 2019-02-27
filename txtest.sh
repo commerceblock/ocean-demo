@@ -21,7 +21,7 @@ echo "kycPubKey: $kycPubKey"
 echo "kycDerivedPubKey: $kycDerivedPubKey"
 echo "whitelist nlines:"
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
-e1-cli sendaddtowhitelisttx "CBT" "10" "$kycPubKey"
+e1-cli sendaddtowhitelisttx 10 "CBT" 
 
 sleep 5
 source main/new_block.sh 6; 

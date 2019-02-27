@@ -1,16 +1,6 @@
 source main/new_block.sh
 sleep 1
 
-printf "Getting KYC key and raw public key from main."
-printf "\n"
-kycKey=`e-cli getnewaddress`
-kycDerivedPubKey=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
-kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
-
-onboardKey=`e-cli getnewaddress`
-onboardDerivedPubKey=`e-cli validateaddress $onboardKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
-onboardPubKey=`e-cli validateaddress $onboardKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
-
 printf "Getting address and raw public key from client."
 printf "\n"
 clientAddress1=`e1-cli getnewaddress`
@@ -32,10 +22,7 @@ e-cli readwhitelist keys.main $kyckey2
 
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
-# Client dumps kyc file
-e1-cli dumpkycfile "kycfile.dat" "$onboardPubKey"
 
-kycfile="kycfile.dat"
 
 # Server registers new KYC public key
 let flvalue=0
@@ -167,9 +154,33 @@ source main/new_block.sh 6
 
 echo "Onboarding user addresses:"
 
-e-cli onboarduser $kycfile "CBT"
+e-cli onboarduser $kycfile "CBT"; sleep 5
 
-source main/new_block.sh 6
+source main/new_block.sh 6; sleep 1
+
 
 echo "whitelist nlines:"
-e-cli dumpwhitelist whitelist2.txt; wc -l whitelist2.txt
+e-cli dumpwhitelist whitelist2.txt; wc -l whitelist2.txt; sleep 1
+echo "client whitelist nlines:"
+e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt; sleep 1
+
+
+echo "User address self-registration: 100 addresses"
+e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
+source main/new_block.sh 6; sleep 1
+echo "client whitelist nlines:"
+e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
+echo "server whitelist nlines:"
+e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+
+e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
+source main/new_block.sh 6; sleep 1
+echo "client whitelist nlines:"
+e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
+echo "server whitelist nlines:"
+e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+
+e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
+source main/new_block.sh 6; sleep 1
+echo "client whitelist nlines:"
+e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
