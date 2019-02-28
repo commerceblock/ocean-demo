@@ -184,3 +184,5 @@ e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
+echo "server whitelist nlines:"
+e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
