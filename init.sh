@@ -42,10 +42,15 @@ e-cli getblockcount
 printf "\n"
 
 #Policy asset private keys
-e-cli importprivkey L25KNBMybgwMTfkMhcfhSCAimb6NbLczvUVqds7854CgjwTSqK6D "" true; sleep 3;
-e-cli importprivkey L4XsnCLjAucENKSJAWLZfuwT75k7JzvPkRx1gBztbqgqdFXFkVAi "" true; sleep 3;
-e-cli importprivkey KwXAu1Vvwbhcy33bcg7RaCahwtWeo6DdFp3KHSV4XFyr8SCvP8Vp "" true; sleep 3;
-e-cli importprivkey L4nu2tHmNYaJJA8gipc3cFRZSJHQPNjZuUFw4oXfpD5XvfNC4dKR "" true; sleep 3;
+prvKeyFrz=cSwvPTiFNFg9XAb64rTaMkihTxH9K5uCtTvrh2DTNzYCQuP93bbF
+prvKeyBrn=cPs1eRScTdbkgXEnC279akg656DhUhc61wkY3XMnFjE72fevxZxm
+prvKeyWht=cNCQhCnpnzyeYh48NszsTJC2G4HPoFMZguUnUgBpJ5X9Vf2KaPYx
+prvKeyInit=cUHtn9aX8W73nQZH9x7f7zmckjWxtw2aJGs8qMnz7H761yCHLQvy
+
+e-cli importprivkey $prvKeyFrz  true; sleep 3;
+e-cli importprivkey $prvKeyBrn  true; sleep 3;
+e-cli importprivkey $prvKeyWht  true; sleep 3;
+e-cli importprivkey $prvKeyInit  true; sleep 3;
 
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
