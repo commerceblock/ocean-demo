@@ -4,23 +4,6 @@ printf "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
 
-printf "Getting KYC key and raw public key from main."
-printf "\n"
-onboardKey=`e-cli getnewaddress`
-onboardDerivedPubKey=`e-cli validateaddress $onboardKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
-onboardPubKey=`e-cli validateaddress $onboardKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
-kycKey=`e-cli getnewaddress`
-kycDerivedPubKey=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\"//p'`
-kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
-
-echo "Client dumping kyc file..."
-onboardKey=`e-cli getnewaddress`
-kycfile="kycfile.dat"
-e1-cli dumpkycfile $kycfile 
-echo "finished dumping kyc file."
-
-
-
 printf "Transaction fails whitelist check:\ne-cli sendtoaddress \$(e1-cli getnewaddress) 100 -> "
 e-cli sendtoaddress $(e1-cli getnewaddress) 100
 echo "e-cli getrawmempool"

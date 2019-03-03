@@ -1,169 +1,50 @@
-source main/new_block.sh
+#!/bin/bash
+source functions.sh
 sleep 1
+printf "Dumping derived keys"
+e-cli dumpderivedkeys keys.main
+e1-cli dumpderivedkeys keys.client
 
-printf "Getting address and raw public key from client."
+printf "Getting KYC key and raw public key from main."
 printf "\n"
-clientAddress1=`e1-cli getnewaddress`
-clientPubKey1=`e1-cli validateaddress $clientAddress1 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
-clientAddress2=`e1-cli getnewaddress`
-clientPubKey2=`e1-cli validateaddress $clientAddress2 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
-clientAddress3=`e1-cli getnewaddress`
-clientPubKey3=`e1-cli validateaddress $clientAddress3 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+kycKey=`e-cli getnewaddress`
+kycKey2=`e-cli getnewaddress`
+kycPubKey=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+
+printf "Adding server addresses to server whitelist."
+e-cli readwhitelist keys.main $kyckey2 
 
 echo "kycKey: $kycKey"
 echo "kycPubKey: $kycPubKey"
-echo "kycDerivedPubKey: $kycDerivedPubKey"
 echo "whitelist nlines:"
-
-#Whitelist only the signing node
-e-cli clearwhitelist
-e1-cli clearwhitelist
-e-cli readwhitelist keys.main $kyckey2 
-
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
-
-
 # Server registers new KYC public key
-let flvalue=0
-let wlvalue=0
-let ntx=0;
-declare -i ntx
+registerKYCPubKey
 
-#The initial whitelist tokens destination
-wfcd=76a914ddb13d1080354c1871123a4ca916ef38030c12c988ac
-flcd=76a914a54de47fa542d4913bc17a80c7854c2235385d9d88ac
-#Get the whitetoken asset ID
-#genhash=`e1-cli getblockhash 0`
-
-#for tx in `e1-cli getblock $genhash | jq --raw-output '.tx[]'`
-#do 
-#echo "tx: $tx"
-#rawtx=`e-cli getrawtransaction $tx`
-#decoded=`e-cli decoderawtransaction $rawtx`
-#scriptpubkeyhex=`echo $decoded | jq --raw-output '.vout [0].scriptPubKey.hex'`
-#if [[ "$scriptpubkeyhex" != "$wfcd" ]]; then
-#continue
-#fi
-#wlasset=`echo $decoded | jq --raw-output '.vout [0].asset'`
-#echo "Whitelist asset: $wlasset"
-#wltxid=`echo $decoded | jq --raw-output '.txid'`
-#wlvalue=`echo $decoded | jq --raw-output '.vout [0].value'`
-#done
+echo "Client dumping kyc file..."
+kycfile="kycfile.dat"
+userOnboardPubKey=`e1-cli dumpkycfile $kycfile`
+echo "finished dumping kyc file."
 
 
-
-while [[ ($wlvalue == 0) || ($flvalue == 0) ]]
-do
-txinfo=`e-cli listunspent | jq --argjson NTX $ntx '.[$NTX] | {txid: .txid, asset: .asset, amount: .amount, vout: .vout, sequence: .sequence, scriptPubKey: .scriptPubKey, asset: .asset, address: .address, spendable : .spendable }'`
-scriptPubKey=`echo $txinfo | jq --raw-output '.scriptPubKey'`
-spendable=`echo $txinfo | jq --raw-output '.spendable'`
-
-if [[ ("$spendable" != "true") ]]; then
-let ntx=$ntx+1
-continue
-fi
-
-if [[ ("$scriptPubKey" == "$wfcd") && ($wlvalue == 0) ]];then
-    let wlvalue=`echo $txinfo | jq --raw-output '.amount'`
-    wlasset=`echo $txinfo | jq --raw-output '.asset'`
-    wlinputs=`echo $txinfo | jq --raw-output '[{txid: .txid, vout: .vout}]'`
-    wlinputs2=`echo $wlinputs | tr -d '[:space:]'`
-    wlinputs=$wlinputs2
-    echo "White list inputs: $wlinputs"
-fi
-if [[ ("$scriptPubKey" == "$flcd") && ($flvalue == 0) ]];then
-    let flvalue=`echo $txinfo | jq --raw-output '.amount'`
-    flasset=`echo $txinfo | jq --raw-output '.asset'`
-    flinputs=`echo $txinfo | jq --raw-output '[{txid: .txid, vout: .vout}]'`
-    flinputs2=`echo $flinputs | tr -d '[:space:]'`
-    flinputs=$flinputs2
-    echo "Freeze list inputs: $flinputs"
-fi
-let ntx=$ntx+1
-done
-
-
-
-#Add address to freeze list
-policyaddress=`e-cli getnewaddress`
-validateaddress=`e-cli validateaddress $policyaddress`
-policypubkey=`echo $validateaddress | jq --raw-output '.pubkey'`
-
-freezeaddress=`e1-cli getnewaddress`
-
-floutputs="[{\"pubkey\":\"$policypubkey\",\"value\":$flvalue,\"address\":\"$freezeaddress\"}]"
-echo $floutputs
-
-echo "Creating freezelist tx:"
-
-tx=`e-cli createrawpolicytx $flinputs $floutputs 0 $flasset`
-
-echo $tx
-
-echo "Signing tx:"
-
-txs=`e-cli signrawtransaction $tx`
-
-echo $txs
-
-echo "Getting hex:"
-
-txsh=`echo $txs | jq --raw-output '.hex'`
-
-echo $txsh
-
-echo "Sending tx:"
-
-#e-cli sendrawtransaction $txsh
-
-
-#Generate a public key for the policy wallet                                                                                                                                      
-policyaddress=`e-cli getnewaddress`
-validateaddress=`e-cli validateaddress $policyaddress`
-policypubkey=`echo $validateaddress | jq --raw-output '.pubkey'`
-
-wloutputs="[{\"pubkey\":\"$policypubkey\",\"value\":$wlvalue,\"userkey\":\"$kycPubKey\"}]"
-#wloutputs="[{\"pubkey\":\"$policypubkey\",\"value\":$wlvalue,\"address\":\"$freezeaddress\"}]"
-echo $outputs
-
-echo "Creating tx:"
-
-tx=`e-cli createrawpolicytx $wlinputs $wloutputs 0 $wlasset`
-
-echo $tx
-
-echo "Signing tx:"
-
-txs=`e-cli signrawtransaction $tx`
-
-echo $txs
-
-echo "Getting hex:"
-
-txsh=`echo $txs | jq --raw-output '.hex'`
-
-echo $txsh
-
-echo "Sending tx:"
-
-e-cli sendrawtransaction $txsh
-
-sleep 5
-source main/new_block.sh 6
 
 echo "Onboarding user addresses:"
-
+sleep 5;
 e-cli onboarduser $kycfile "CBT"; sleep 5
 
-source main/new_block.sh 6; sleep 1
+source main/new_block.sh 6 ; sleep 5
 
 
 echo "whitelist nlines:"
-e-cli dumpwhitelist whitelist2.txt; wc -l whitelist2.txt; sleep 1
+e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt; sleep 1
 
+echo "sending funds to user"
+e-cli sendtoaddress $(e1-cli getnewaddress) 100
+
+source main/new_block.sh 6 ; sleep 5
 
 echo "User address self-registration: 100 addresses"
 e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
@@ -173,6 +54,7 @@ e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
 echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
+echo "User address self-registration: 100 addresses"
 e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
@@ -180,9 +62,11 @@ e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
 echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
+echo "User address self-registration: 100 addresses"
 e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 5
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
 echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+}
