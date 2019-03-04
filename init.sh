@@ -1,20 +1,20 @@
 # INITIAL SETUP
 rm -r ~/oceandir-main ; rm -r ~/oceandir1 ; rm -r ~/oceandir-explorer
 mkdir ~/oceandir-main ; mkdir ~/oceandir1 ; mkdir ~/oceandir-explorer
-mkdir ~/oceandir1/terms-and-conditions ; mkdir ~/oceandir-main/terms-and-conditions ; mkdir ~/oceandir-explorer/terms-and-conditions
-mkdir ~/oceandir1/asset-mapping ; mkdir ~/oceandir-main/asset-mapping ; mkdir ~/oceandir-explorer/asset-mapping
+mkdir -p ~/oceandir1/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_test
+mkdir -p ~/oceandir1/asset-mapping/ocean_test ; mkdir -p ~/oceandir-main/asset-mapping/ocean_test ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_test
 
 cp ./main/ocean.conf ~/oceandir-main/ocean.conf
 cp ./client-1/ocean.conf ~/oceandir1/ocean.conf
 cp ./explorer/ocean.conf ~/oceandir-explorer/ocean.conf
 
-cp latest.txt ~/oceandir-main/terms-and-conditions/latest.txt
-cp latest.txt ~/oceandir1/terms-and-conditions/latest.txt
-cp latest.txt ~/oceandir-explorer/terms-and-conditions/latest.txt
+cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir1/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_test/latest.txt
 
-cp latest.json ~/oceandir-main/asset-mapping/latest.json
-cp latest.json ~/oceandir1/asset-mapping/latest.json
-cp latest.json ~/oceandir-explorer/asset-mapping/latest.json
+cp latest.json ~/oceandir-main/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir1/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir-explorer/asset-mapping/ocean_test/latest.json
 
 shopt -s expand_aliases
 
@@ -27,8 +27,8 @@ alias e1-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir1"
 alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
 alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
 
-SIGNBLOCKARG="-signblockscript=512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae" ; sleep 1
-KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
+SIGNBLOCKARG="-signblockscript=5121027d85472b0d42ba60e3b1030b07127f534c9858779fab474c04fcecf9f6c7ae9e51ae" ; sleep 1
+KEY="cQ26YCNFdihkhmrtwpixkDxXECuPMRNSDBZu84HyWBV984RaCXmc"
 
 
 
