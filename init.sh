@@ -1,34 +1,34 @@
 # INITIAL SETUP
-rm -r ~/elementsdir-main ; rm -r ~/elementsdir1 ; rm -r ~/elementsdir-explorer
-mkdir ~/elementsdir-main ; mkdir ~/elementsdir1 ; mkdir ~/elementsdir-explorer
-mkdir ~/elementsdir1/terms-and-conditions ; mkdir ~/elementsdir-main/terms-and-conditions ; mkdir ~/elementsdir-explorer/terms-and-conditions
-mkdir ~/elementsdir1/asset-mapping ; mkdir ~/elementsdir-main/asset-mapping ; mkdir ~/elementsdir-explorer/asset-mapping
+rm -r ~/oceandir-main ; rm -r ~/oceandir1 ; rm -r ~/oceandir-explorer
+mkdir ~/oceandir-main ; mkdir ~/oceandir1 ; mkdir ~/oceandir-explorer
+mkdir -p ~/oceandir1/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_test
+mkdir -p ~/oceandir1/asset-mapping/ocean_test ; mkdir -p ~/oceandir-main/asset-mapping/ocean_test ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_test
 
-cp ./main/elements.conf ~/elementsdir-main/elements.conf
-cp ./client-1/elements.conf ~/elementsdir1/elements.conf
-cp ./explorer/elements.conf ~/elementsdir-explorer/elements.conf
+cp ./main/ocean.conf ~/oceandir-main/ocean.conf
+cp ./client-1/ocean.conf ~/oceandir1/ocean.conf
+cp ./explorer/ocean.conf ~/oceandir-explorer/ocean.conf
 
-cp latest.txt ~/elementsdir-main/terms-and-conditions/latest.txt
-cp latest.txt ~/elementsdir1/terms-and-conditions/latest.txt
-cp latest.txt ~/elementsdir-explorer/terms-and-conditions/latest.txt
+cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir1/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_test/latest.txt
 
-cp latest.json ~/elementsdir-main/asset-mapping/latest.json
-cp latest.json ~/elementsdir1/asset-mapping/latest.json
-cp latest.json ~/elementsdir-explorer/asset-mapping/latest.json
+cp latest.json ~/oceandir-main/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir1/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir-explorer/asset-mapping/ocean_test/latest.json
 
 shopt -s expand_aliases
 
-ELEMENTSPATH="../ocean/src"
+OCEANPATH="../ocean/src"
 
-alias e-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir-main"
-alias e-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir-main"
-alias e1-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir1"
-alias e1-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir1"
-alias ee-cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir-explorer"
-alias ee-dae="$ELEMENTSPATH/elementsd -datadir=$HOME/elementsdir-explorer"
+alias e-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
+alias e-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-main"
+alias e1-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
+alias e1-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir1"
+alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
+alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
 
-SIGNBLOCKARG="-signblockscript=512103c4ef1e6deaccbe3b5125321c9ae35966effd222c7d29fb7a13d47fb45ebcb7bf51ae" ; sleep 1
-KEY="KwehQp1fsgrNGj38HFE4xbgW42PyZFa5QF4EpDoJco4Tq5g9xXUq"
+SIGNBLOCKARG="-signblockscript=5121027d85472b0d42ba60e3b1030b07127f534c9858779fab474c04fcecf9f6c7ae9e51ae" ; sleep 1
+KEY="cQ26YCNFdihkhmrtwpixkDxXECuPMRNSDBZu84HyWBV984RaCXmc"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"

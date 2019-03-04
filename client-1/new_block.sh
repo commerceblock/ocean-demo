@@ -1,8 +1,8 @@
 shopt -s expand_aliases
 
-ELEMENTSPATH="../ocean/src"
+OCEANPATH="../ocean/src"
 
-alias cli="$ELEMENTSPATH/elements-cli -datadir=$HOME/elementsdir1"
+alias cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
 
 # Let's propose and accept some blocks, e1 is master!
 NEW_BLOCK=`cli getnewblockhex`
