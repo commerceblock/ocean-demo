@@ -64,3 +64,16 @@ printf "Client node cannot generate a new block. Block cound has not increased:\
 e-cli getblockcount
 printf "\n"
 
+#Initialize server whitelist
+source functions.sh
+sleep 1
+printf "Dumping derived keys"
+e-cli dumpderivedkeys keys.main
+e1-cli dumpderivedkeys keys.client
+
+printf "Adding server addresses to server whitelist."
+e-cli readwhitelist keys.main 
+
+echo "whitelist nlines:"
+e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
+
