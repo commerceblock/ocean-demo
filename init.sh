@@ -1,34 +1,25 @@
 # INITIAL SETUP
 rm -r ~/oceandir-main ; rm -r ~/oceandir1 ; rm -r ~/oceandir-explorer
 mkdir ~/oceandir-main ; mkdir ~/oceandir1 ; mkdir ~/oceandir-explorer
-mkdir -p ~/oceandir1/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_test
-mkdir -p ~/oceandir1/asset-mapping/ocean_test ; mkdir -p ~/oceandir-main/asset-mapping/ocean_test ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_test
+mkdir -p ~/oceandir1/terms-and-conditions/ocean_main ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_main ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_main
+mkdir -p ~/oceandir1/asset-mapping/ocean_main ; mkdir -p ~/oceandir-main/asset-mapping/ocean_main ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_main
 
 cp ./main/ocean.conf ~/oceandir-main/ocean.conf
 cp ./client-1/ocean.conf ~/oceandir1/ocean.conf
 cp ./explorer/ocean.conf ~/oceandir-explorer/ocean.conf
 
-cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_test/latest.txt
-cp latest.txt ~/oceandir1/terms-and-conditions/ocean_test/latest.txt
-cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_main/latest.txt
+cp latest.txt ~/oceandir1/terms-and-conditions/ocean_main/latest.txt
+cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_main/latest.txt
 
-cp latest.json ~/oceandir-main/asset-mapping/ocean_test/latest.json
-cp latest.json ~/oceandir1/asset-mapping/ocean_test/latest.json
-cp latest.json ~/oceandir-explorer/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir-main/asset-mapping/ocean_main/latest.json
+cp latest.json ~/oceandir1/asset-mapping/ocean_main/latest.json
+cp latest.json ~/oceandir-explorer/asset-mapping/ocean_main/latest.json
 
-shopt -s expand_aliases
+source init-cli.sh
 
-OCEANPATH="../ocean/src"
-
-alias e-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
-alias e-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-main"
-alias e1-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
-alias e1-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir1"
-alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
-alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
-
-SIGNBLOCKARG="-signblockscript=5121027d85472b0d42ba60e3b1030b07127f534c9858779fab474c04fcecf9f6c7ae9e51ae" ; sleep 1
-KEY="cQ26YCNFdihkhmrtwpixkDxXECuPMRNSDBZu84HyWBV984RaCXmc"
+SIGNBLOCKARG="-signblockscript=512103e53077a217d461582ea5ccfab475db7d5cfe4361b6bae75db5bc9f42180e822251ae" ; sleep 1
+KEY="KxEbs7nt255rVdSyZKzLyvL21EwW7j7D81dHhN16YauGf455ktnw"
 
 
 
@@ -42,10 +33,11 @@ e-cli getblockcount
 printf "\n"
 
 #Policy asset private keys
-prvKeyFrz=cSwvPTiFNFg9XAb64rTaMkihTxH9K5uCtTvrh2DTNzYCQuP93bbF
-prvKeyBrn=cPs1eRScTdbkgXEnC279akg656DhUhc61wkY3XMnFjE72fevxZxm
-prvKeyWht=cNCQhCnpnzyeYh48NszsTJC2G4HPoFMZguUnUgBpJ5X9Vf2KaPYx
-prvKeyInit=cUHtn9aX8W73nQZH9x7f7zmckjWxtw2aJGs8qMnz7H761yCHLQvy
+#source genPolicyAssets.sh
+prvKeyFrz=L2ZF3zNoSJGXuwEHEstxAMWjBs5kvBqvVrWtT1aoEAV62Wi2cXRt
+prvKeyBrn=KxgdtoMVWspjohkgDvDtVYfpjqepMaLpVaoE6zgVzKhcxsQDLa9Q
+prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
+prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
 
 e-cli importprivkey $prvKeyFrz  true; sleep 3;
 e-cli importprivkey $prvKeyBrn  true; sleep 3;
