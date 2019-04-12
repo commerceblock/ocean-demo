@@ -1,5 +1,5 @@
 #The initial whitelist tokens destination
-wfcd=$destWht
+wfcd=76a9144ff9b5c6885f87fb5519cc45c1474f301a73224a88ac
 
 function registerKYCPubKey {
 let wlvalue=0

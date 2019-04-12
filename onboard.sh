@@ -9,7 +9,7 @@ echo "finished dumping kyc file."
 
 echo "Onboarding user addresses:"
 sleep 5;
-e-cli onboarduser $kycfile "CBT"; sleep 5
+e-cli onboarduser $kycfile; sleep 5
 
 source main/new_block.sh 6 ; sleep 5
 
