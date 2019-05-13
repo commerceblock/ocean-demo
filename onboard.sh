@@ -6,9 +6,8 @@ echo "Client dumping kyc file..."
 kycfile="kycfile.dat"
 userOnboardPubKey=`e1-cli dumpkycfile $kycfile`
 echo "finished dumping kyc file."
-
+source main/new_block.sh 6 ; sleep 3
 echo "Onboarding user addresses:"
-sleep 5;
 e-cli onboarduser $kycfile; sleep 5
 
 source main/new_block.sh 6 ; sleep 5
