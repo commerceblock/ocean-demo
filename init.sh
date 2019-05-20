@@ -26,6 +26,7 @@ KEY="KxEbs7nt255rVdSyZKzLyvL21EwW7j7D81dHhN16YauGf455ktnw"
 # BLOCK SIGNING
 echo "***** Block Signing *****"
 e-dae $SIGNBLOCKARG ; sleep 10
+echo "importing sign block key"
 e-cli importprivkey $KEY; sleep 3
 ./main/new_block.sh
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
@@ -39,11 +40,12 @@ prvKeyBrn=KxgdtoMVWspjohkgDvDtVYfpjqepMaLpVaoE6zgVzKhcxsQDLa9Q
 prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
 prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
 
+echo "importing policy private keys"
 e-cli importprivkey $prvKeyFrz  true; sleep 3;
 e-cli importprivkey $prvKeyBrn  true; sleep 3;
 e-cli importprivkey $prvKeyWht  true; sleep 3;
 e-cli importprivkey $prvKeyInit  true; sleep 3;
-
+echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
 
@@ -56,7 +58,7 @@ printf "Client node cannot generate a new block. Block cound has not increased:\
 e-cli getblockcount
 printf "\n"
 
-#Initialize server whitelist
+#Local whitelisting
 source functions.sh
 sleep 1
 printf "Dumping derived keys"
@@ -69,3 +71,14 @@ e-cli readwhitelist keys.main
 echo "whitelist nlines:"
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
+#On-chain whitelisting
+
+source whitelist.sh
+
+#Asset issuance
+
+source assetissuance.sh
+
+#Blakclisting
+
+source blacklist.sh

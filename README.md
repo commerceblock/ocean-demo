@@ -45,14 +45,3 @@ The following aliases can be used to perform any command line operations availab
 
 	`ee-cli getblock ($ee-cli getbestblockhash) true`
 
-### Whitelisting
-
-The demo includes a demonstration of transaction whitelisting by the main signing node. If a new client were to be added then the following procedure will have to be followed in order for transactions to be accepted in the mempool of the signing node:
-
-- Client node to dump it's derived keys (pubkey hash of tweaked key)
-
-	`e-cli dumpderivedkeys keys`
-
-- Main signing node to add this keys to it's whitelist
-
-	`e-cli readwhitelist keys`
