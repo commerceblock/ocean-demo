@@ -1,46 +1,54 @@
 # INITIAL SETUP
 rm -r ~/oceandir-main ; rm -r ~/oceandir1 ; rm -r ~/oceandir-explorer
 mkdir ~/oceandir-main ; mkdir ~/oceandir1 ; mkdir ~/oceandir-explorer
-mkdir -p ~/oceandir1/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_test ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_test
-mkdir -p ~/oceandir1/asset-mapping/ocean_test ; mkdir -p ~/oceandir-main/asset-mapping/ocean_test ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_test
+mkdir -p ~/oceandir1/terms-and-conditions/ocean_main ; mkdir -p ~/oceandir-main/terms-and-conditions/ocean_main ; mkdir -p ~/oceandir-explorer/terms-and-conditions/ocean_main
+mkdir -p ~/oceandir1/asset-mapping/ocean_main ; mkdir -p ~/oceandir-main/asset-mapping/ocean_main ; mkdir -p ~/oceandir-explorer/asset-mapping/ocean_main
 
 cp ./main/ocean.conf ~/oceandir-main/ocean.conf
 cp ./client-1/ocean.conf ~/oceandir1/ocean.conf
 cp ./explorer/ocean.conf ~/oceandir-explorer/ocean.conf
 
-cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_test/latest.txt
-cp latest.txt ~/oceandir1/terms-and-conditions/ocean_test/latest.txt
-cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_test/latest.txt
+cp latest.txt ~/oceandir-main/terms-and-conditions/ocean_main/latest.txt
+cp latest.txt ~/oceandir1/terms-and-conditions/ocean_main/latest.txt
+cp latest.txt ~/oceandir-explorer/terms-and-conditions/ocean_main/latest.txt
 
-cp latest.json ~/oceandir-main/asset-mapping/ocean_test/latest.json
-cp latest.json ~/oceandir1/asset-mapping/ocean_test/latest.json
-cp latest.json ~/oceandir-explorer/asset-mapping/ocean_test/latest.json
+cp latest.json ~/oceandir-main/asset-mapping/ocean_main/latest.json
+cp latest.json ~/oceandir1/asset-mapping/ocean_main/latest.json
+cp latest.json ~/oceandir-explorer/asset-mapping/ocean_main/latest.json
 
-shopt -s expand_aliases
+source init-cli.sh
 
-OCEANPATH="../ocean/src"
+SIGNBLOCKARG="-signblockscript=512103e53077a217d461582ea5ccfab475db7d5cfe4361b6bae75db5bc9f42180e822251ae" ; sleep 1
+KEY="KxEbs7nt255rVdSyZKzLyvL21EwW7j7D81dHhN16YauGf455ktnw"
 
-alias e-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
-alias e-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-main"
-alias e1-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir1"
-alias e1-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir1"
-alias ee-cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-explorer"
-alias ee-dae="$OCEANPATH/oceand -datadir=$HOME/oceandir-explorer"
 
-SIGNBLOCKARG="-signblockscript=5121027d85472b0d42ba60e3b1030b07127f534c9858779fab474c04fcecf9f6c7ae9e51ae" ; sleep 1
-KEY="cQ26YCNFdihkhmrtwpixkDxXECuPMRNSDBZu84HyWBV984RaCXmc"
 
 # BLOCK SIGNING
 echo "***** Block Signing *****"
-e-dae $SIGNBLOCKARG ; sleep 5
-e-cli importprivkey $KEY ; sleep 1
+e-dae $SIGNBLOCKARG ; sleep 10
+echo "importing sign block key"
+e-cli importprivkey $KEY; sleep 3
 ./main/new_block.sh
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
 
-e1-dae $SIGNBLOCKARG ; sleep 5
-ee-dae $SIGNBLOCKARG ; sleep 5
+#Policy asset private keys
+#source genPolicyAssets.sh
+prvKeyFrz=L2ZF3zNoSJGXuwEHEstxAMWjBs5kvBqvVrWtT1aoEAV62Wi2cXRt
+prvKeyBrn=KxgdtoMVWspjohkgDvDtVYfpjqepMaLpVaoE6zgVzKhcxsQDLa9Q
+prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
+prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
+
+echo "importing policy private keys"
+e-cli importprivkey $prvKeyFrz  true; sleep 3;
+e-cli importprivkey $prvKeyBrn  true; sleep 3;
+e-cli importprivkey $prvKeyWht  true; sleep 3;
+e-cli importprivkey $prvKeyInit  true; sleep 3;
+echo "finished importing policy private keys"
+e1-dae $SIGNBLOCKARG ; sleep 3
+ee-dae $SIGNBLOCKARG ; sleep 3
+
 printf "Block broadcast to client node:\ne1-cli getblockcount -> "
 e1-cli getblockcount
 printf "\n"
@@ -50,48 +58,27 @@ printf "Client node cannot generate a new block. Block cound has not increased:\
 e-cli getblockcount
 printf "\n"
 
-# WHITELISTING
-echo "***** Whitelisting *****"
-printf "Transaction fails whitelist check:\ne-cli sendtoaddress \$(e1-cli getnewaddress) 100 -> "
-e-cli sendtoaddress $(e1-cli getnewaddress) 100
-echo "e-cli getrawmempool"
-e-cli getrawmempool
-printf "\n"
-
+#Local whitelisting
+source functions.sh
+sleep 1
+printf "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
-e-cli readwhitelist keys.main
-e-cli readwhitelist keys.client
-rm keys.main ; rm keys.client
 
-printf "Transaction added to mempool after reading main node and client node derived keys:\ne-cli sendtoaddress \$(e1-cli getnewaddress) 100 -> "
-e-cli sendtoaddress $(e1-cli getnewaddress) 100
-echo "e-cli getrawmempool"
-e-cli getrawmempool
-printf "\n"
+printf "Adding server addresses to server whitelist."
+e-cli readwhitelist keys.main 
 
-./main/new_block.sh
-printf "Generate a block and clean mempool\n"
-printf "blockcount: "
-e-cli getblockcount
-printf "\n"
-printf "block: "
-e-cli getblock $(e-cli getblockhash 2)
-printf "\n"
-printf "mempool: "
-e-cli getrawmempool
-printf "\n"
+echo "whitelist nlines:"
+e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
-# ASSET ISSUANCE
-echo "***** Asset Issuance *****"
+#On-chain whitelisting
 
-issue=$(e-cli issueasset 100 1 false)
-asset=$(echo $issue | jq --raw-output '.asset')
-printf "Issuance\n $issue\n"
-printf "Asset $asset\n"
+source whitelist.sh
 
-e-cli sendtoaddress $(e1-cli getnewaddress) 80 "" "" false $asset
-e-cli sendtoaddress $(e1-cli getnewaddress) 10 "" "" true $asset
-e-cli getrawmempool
-./main/new_block.sh
-e-cli getblock $(e-cli getblockhash 3)
+#Asset issuance
+
+source assetissuance.sh
+
+#Blakclisting
+
+source blacklist.sh
