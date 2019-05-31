@@ -61,7 +61,7 @@ printf "\n"
 #Local whitelisting
 source functions.sh
 sleep 1
-printf "Dumping derived keys"
+echo "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
 
@@ -71,7 +71,7 @@ e-cli readwhitelist keys.main
 echo "whitelist nlines:"
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
-#On-chain whitelisting
+#Off-chain whitelisting
 
 source whitelist.sh
 
@@ -79,6 +79,12 @@ source whitelist.sh
 
 source assetissuance.sh
 
-#Blakclisting
+#On-chain whitelisting
 
-source blacklist.sh
+source onboard.sh
+
+#Blacklisting
+
+#source blacklist.sh
+
+
