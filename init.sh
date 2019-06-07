@@ -58,8 +58,7 @@ printf "Client node cannot generate a new block. Block cound has not increased:\
 e-cli getblockcount
 printf "\n"
 
-#Local whitelisting
-source functions.sh
+#Local whitelisting 
 
 sleep 1
 echo "Dumping derived keys"
