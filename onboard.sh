@@ -1,19 +1,13 @@
 #!/bin/bash
 # Server registers new KYC public key
 echo "Registering KYC public keys..."
-tx=`e-cli createkycpubkeytx 100`
-txs=`e-cli signrawtransaction $tx`
-txsh=`echo $txs | jq --raw-output '.hex'`
-wltxid=`e-cli sendrawtransaction $txsh`
+tx=`e-cli topupkycpubkeys 100`
 sleep 1
 echo "Mining blocks..."
 source main/new_block.sh 6; sleep 1
 
 echo "Registering KYC public keys..."
-tx=`e-cli createkycpubkeytx 100`
-txs=`e-cli signrawtransaction $tx`
-txsh=`echo $txs | jq --raw-output '.hex'`
-wltxid=`e-cli sendrawtransaction $txsh`
+tx=`e-cli topupkycpubkeys 100`
 sleep 1
 echo "Mining blocks..."
 source main/new_block.sh 6; sleep 1

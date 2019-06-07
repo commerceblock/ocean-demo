@@ -41,10 +41,10 @@ prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
 prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
 
 echo "importing policy private keys"
-e-cli importprivkey $prvKeyFrz  true; sleep 3;
-e-cli importprivkey $prvKeyBrn  true; sleep 3;
-e-cli importprivkey $prvKeyWht  true; sleep 3;
-e-cli importprivkey $prvKeyInit  true; sleep 3;
+e-cli importprivkey $prvKeyFrz  true; sleep 1
+e-cli importprivkey $prvKeyBrn  true; sleep 1
+e-cli importprivkey $prvKeyWht  true; sleep 1
+e-cli importprivkey $prvKeyInit  true; sleep 1
 echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
@@ -60,6 +60,7 @@ printf "\n"
 
 #Local whitelisting
 source functions.sh
+
 sleep 1
 echo "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
@@ -85,6 +86,6 @@ source onboard.sh
 
 #Blacklisting
 
-#source blacklist.sh
+source blacklist.sh
 
 
