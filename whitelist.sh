@@ -60,9 +60,7 @@ e-cli getbalance
 
 printf "Pay funds to client address 1."
 printf "\n"
-e-cli sendtoaddress $clientAddress1 100 "from" "me" false "CBT"
-e-cli sendtoaddress $clientAddress1 100 
-main/new_block.sh 10
+e-cli sendtoaddress $clientAddress1 100 "from" "me" false "ISSUANCE"
 main/new_block.sh 10
 printf "Main wallet balance:"
 e-cli getbalance

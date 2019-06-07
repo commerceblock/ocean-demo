@@ -34,7 +34,7 @@ e-cli sendtoaddress $(e1-cli getnewaddress) 100
 source main/new_block.sh 6 ; sleep 1
 
 echo "User address self-registration: 100 addresses"
-e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 1
+e1-cli sendaddtowhitelisttx 100 "ISSUANCE"; sleep 1
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
@@ -42,7 +42,7 @@ echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
 echo "User address self-registration: 100 addresses"
-e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 1
+e1-cli sendaddtowhitelisttx 100 "ISSUANCE"; sleep 1
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
@@ -50,7 +50,7 @@ echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
 echo "User address self-registration: 100 addresses"
-e1-cli sendaddtowhitelisttx 100 "CBT"; sleep 1
+e1-cli sendaddtowhitelisttx 100 "ISSUANCE"; sleep 1
 source main/new_block.sh 6; sleep 1
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt

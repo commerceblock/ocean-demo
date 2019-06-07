@@ -45,6 +45,9 @@ e-cli importprivkey $prvKeyFrz  true; sleep 1
 e-cli importprivkey $prvKeyBrn  true; sleep 1
 e-cli importprivkey $prvKeyWht  true; sleep 1
 e-cli importprivkey $prvKeyInit  true; sleep 1
+
+e-cli getwalletinfo
+
 echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
@@ -71,20 +74,6 @@ e-cli readwhitelist keys.main
 echo "whitelist nlines:"
 e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
-#Off-chain whitelisting
 
-source whitelist.sh
-
-#Asset issuance
-
-source assetissuance.sh
-
-#On-chain whitelisting
-
-source onboard.sh
-
-#Blacklisting
-
-source blacklist.sh
 
 
