@@ -21,10 +21,10 @@ kycDerivedPubKey2=`e-cli validateaddress $kycKey | grep \"derivedpubkey\" | awk 
 kycPubKey2=`e-cli validateaddress $kycKey | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
 
 printf "Adding client and server addresses to whitelists."
-e-cli readwhitelist keys.main $kycPubKey2 
-e-cli readwhitelist keys.client $kycPubKey
-e1-cli readwhitelist keys.main $kycPubKey2
-e1-cli readwhitelist keys.client $kycPubKey
+e-cli readwhitelist keys.main $kycKey
+e-cli readwhitelist keys.client $kycKey2
+e1-cli readwhitelist keys.main $kycKey
+e1-cli readwhitelist keys.client $kycKey2
 #rm keys.main ; rm keys.client
 
 printf "Getting address and raw public key from client."
@@ -76,12 +76,12 @@ e1-cli getbalance
 printf "Add client addresses 1 to 3  to local memory whitelists."
 printf "Adding client addresses to whitelist."
 printf "\n"
-e-cli addtowhitelist $clientAddress1 $clientPubKey1 $kycPubKey
-e-cli addtowhitelist $clientAddress2 $clientPubKey2 $kycPubKey
-e-cli addtowhitelist $clientAddress3 $clientPubKey3 $kycPubKey
-e1-cli addtowhitelist $clientAddress1 $clientPubKey1 $kycPubKey
-e1-cli addtowhitelist $clientAddress2 $clientPubKey2 $kycPubKey
-e1-cli addtowhitelist $clientAddress3 $clientPubKey3 $kycPubKey
+e-cli addtowhitelist $clientAddress1 $clientPubKey1 $kycKey2
+e-cli addtowhitelist $clientAddress2 $clientPubKey2 $kycKey2
+e-cli addtowhitelist $clientAddress3 $clientPubKey3 $kycKey2
+e1-cli addtowhitelist $clientAddress1 $clientPubKey1 $kycKey2
+e1-cli addtowhitelist $clientAddress2 $clientPubKey2 $kycKey2
+e1-cli addtowhitelist $clientAddress3 $clientPubKey3 $kycKey2
 
 
 printf "Transaction added to mempool after reading main node and client node derived keys:\ne-cli sendtoaddress \$(e1-cli getnewaddress) 100 -> "
