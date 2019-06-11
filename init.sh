@@ -38,13 +38,15 @@ printf "\n"
 prvKeyFrz=L2ZF3zNoSJGXuwEHEstxAMWjBs5kvBqvVrWtT1aoEAV62Wi2cXRt
 prvKeyBrn=KxgdtoMVWspjohkgDvDtVYfpjqepMaLpVaoE6zgVzKhcxsQDLa9Q
 prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
-prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
+prvKeyInit=KzMAyD64aEiU9fEDDKvNBky48pvCbumJ4Y9FLmkjxHrfS8Yo7WdZ
+prvKeyIssue=KwQT54eSXgjsb6wprShFtBQi7Aj56Sb2XPjnsnY9uMjYX16s7L32
 
 echo "importing policy private keys"
-e-cli importprivkey $prvKeyFrz  true; sleep 3;
-e-cli importprivkey $prvKeyBrn  true; sleep 3;
-e-cli importprivkey $prvKeyWht  true; sleep 3;
-e-cli importprivkey $prvKeyInit  true; sleep 3;
+e-cli importprivkey $prvKeyFrz  true; sleep 1;
+e-cli importprivkey $prvKeyBrn  true; sleep 1;
+e-cli importprivkey $prvKeyWht  true; sleep 1;
+e-cli importprivkey $prvKeyInit  true; sleep 1;
+e-cli importprivkey $prvKeyIssue  true; sleep 1;
 echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
