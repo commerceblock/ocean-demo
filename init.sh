@@ -38,7 +38,8 @@ printf "\n"
 prvKeyFrz=L2ZF3zNoSJGXuwEHEstxAMWjBs5kvBqvVrWtT1aoEAV62Wi2cXRt
 prvKeyBrn=KxgdtoMVWspjohkgDvDtVYfpjqepMaLpVaoE6zgVzKhcxsQDLa9Q
 prvKeyWht=L4yQ56XpNhp5e4uLAAGk3H35s9rBgerizPuDJqCshUDiYA8REpuN
-prvKeyInit=L2k7Ra1aSSsvHTk2exUQnJxeTcyW6Wpo99RTUCFi3w2EPATzxMSr
+prvKeyInit=KzMAyD64aEiU9fEDDKvNBky48pvCbumJ4Y9FLmkjxHrfS8Yo7WdZ
+prvKeyIssue=KwQT54eSXgjsb6wprShFtBQi7Aj56Sb2XPjnsnY9uMjYX16s7L32
 
 echo "importing policy private keys"
 e-cli importprivkey $prvKeyFrz  true; sleep 1
@@ -51,29 +52,5 @@ e-cli getwalletinfo
 echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
-
-printf "Block broadcast to client node:\ne1-cli getblockcount -> "
-e1-cli getblockcount
-printf "\n"
-
-./client-1/new_block.sh
-printf "Client node cannot generate a new block. Block cound has not increased:\ne-cli getblockcount -> "
-e-cli getblockcount
-printf "\n"
-
-#Local whitelisting 
-
-sleep 1
-echo "Dumping derived keys"
-e-cli dumpderivedkeys keys.main
-e1-cli dumpderivedkeys keys.client
-
-printf "Adding server addresses to server whitelist."
-e-cli readwhitelist keys.main 
-
-echo "whitelist nlines:"
-e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
-
-
 
 

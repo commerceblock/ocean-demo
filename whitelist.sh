@@ -1,5 +1,9 @@
 # WHITELISTING
 echo "***** Whitelisting *****"
+printf "Clearing whitelists"
+e-cli clearwhitelist
+e1-cli clearwhitelist
+
 printf "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
@@ -60,7 +64,7 @@ e-cli getbalance
 
 printf "Pay funds to client address 1."
 printf "\n"
-e-cli sendtoaddress $clientAddress1 100 "from" "me" false "ISSUANCE"
+e-cli sendtoaddress $clientAddress1 100 "from" "me" false "CBT"
 main/new_block.sh 10
 printf "Main wallet balance:"
 e-cli getbalance
