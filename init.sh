@@ -75,11 +75,11 @@ e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
 #Off-chain whitelisting
 
-#source whitelist.sh
+source whitelist.sh
 
 #Asset issuance
 
-#source assetissuance.sh
+source assetissuance.sh
 
 #On-chain whitelisting
 
