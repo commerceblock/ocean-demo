@@ -28,7 +28,7 @@ echo "***** Block Signing *****"
 e-dae $SIGNBLOCKARG ; sleep 10
 echo "importing sign block key"
 e-cli importprivkey $KEY; sleep 3
-./main/new_block.sh
+./main/new_block.sh 1
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
@@ -47,46 +47,13 @@ e-cli importprivkey $prvKeyBrn  true; sleep 1;
 e-cli importprivkey $prvKeyWht  true; sleep 1;
 e-cli importprivkey $prvKeyInit  true; sleep 1;
 e-cli importprivkey $prvKeyIssue  true; sleep 1;
+e-cli getwalletinfo
+
 echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
 
-printf "Block broadcast to client node:\ne1-cli getblockcount -> "
-e1-cli getblockcount
-printf "\n"
-
-./client-1/new_block.sh
-printf "Client node cannot generate a new block. Block cound has not increased:\ne-cli getblockcount -> "
-e-cli getblockcount
-printf "\n"
-
-#Local whitelisting
-source functions.sh
-sleep 1
-echo "Dumping derived keys"
-e-cli dumpderivedkeys keys.main
-e1-cli dumpderivedkeys keys.client
-
-printf "Adding server addresses to server whitelist."
-e-cli readwhitelist keys.main 
-
-echo "whitelist nlines:"
-e-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
-
-#Off-chain whitelisting
-
-source whitelist.sh
-
-#Asset issuance
-
-source assetissuance.sh
-
-#On-chain whitelisting
-
-#source onboard.sh
-
-#Blacklisting
-
-#source blacklist.sh
-
+nblocks=6
+echo "Mining $nblocks blocks"
+source main/new_block.sh $nblocks
 

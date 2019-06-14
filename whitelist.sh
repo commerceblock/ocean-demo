@@ -1,5 +1,9 @@
 # WHITELISTING
 echo "***** Whitelisting *****"
+printf "Clearing whitelists"
+e-cli clearwhitelist
+e1-cli clearwhitelist
+
 printf "Dumping derived keys"
 e-cli dumpderivedkeys keys.main
 e1-cli dumpderivedkeys keys.client
@@ -42,7 +46,7 @@ echo "e-cli getrawmempool"
 e-cli getrawmempool
 printf "\n"
 
-./main/new_block.sh 10
+./main/new_block.sh 1
 printf "Generate a block and clean mempool\n"
 printf "blockcount: "
 e-cli getblockcount
@@ -54,16 +58,14 @@ printf "mempool: "
 e-cli getrawmempool
 printf "\n"
 
-main/new_block.sh 10
+main/new_block.sh 1
 printf "Main wallet balance:"
 e-cli getbalance
 
 printf "Pay funds to client address 1."
 printf "\n"
 e-cli sendtoaddress $clientAddress1 100 "from" "me" false "CBT"
-e-cli sendtoaddress $clientAddress1 100 
-main/new_block.sh 10
-main/new_block.sh 10
+main/new_block.sh 1
 printf "Main wallet balance:"
 e-cli getbalance
 printf "Client wallet balance:"
@@ -91,7 +93,7 @@ echo "e-cli getrawmempool"
 #e-cli getrawmempool
 printf "\n"
 
-./main/new_block.sh 10
+./main/new_block.sh 1
 printf "Generate a block and clean mempool\n"
 printf "blockcount: "
 e-cli getblockcount
@@ -103,7 +105,7 @@ printf "mempool: "
 e-cli getrawmempool
 printf "\n"
 
-main/new_block.sh 10
+main/new_block.sh 1
 e-cli dumpwhitelist whitelist.txt
 cat whitelist.txt
 
