@@ -13,6 +13,10 @@ Initiate the demo by running:
 
 `source ./init.sh`
 
+Run the demo scripts by running:
+
+`source ./demos.sh`
+
 To stop all the ocean instances do:
 
 `./stop.sh`

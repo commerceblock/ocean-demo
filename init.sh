@@ -56,3 +56,4 @@ ee-dae $SIGNBLOCKARG ; sleep 3
 nblocks=6
 echo "Mining $nblocks blocks"
 source main/new_block.sh $nblocks
+
