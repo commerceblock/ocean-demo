@@ -7,7 +7,7 @@ echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
 # Server registers new KYC public key
-tx1=`e-cli topupkycpubkeys 1000`
+tx1=`e-cli topupkycpubkeys 100`
 echo $tx1
 source main/new_block.sh 1; sleep 1
 e-cli getwalletinfo
@@ -94,13 +94,11 @@ printf "Adding the created p2sh to the whitelist\n"
 multiArray="[\"$clientPubKey1\",\"$clientPubKey2\",\"$clientPubKey3\"]"
 echo $multiAddress1
 echo $multiArray
-echo $kycKey
 
 printf "mempool: "
 e1-cli getrawmempool
 printf "\n"
-#e-cli addmultitowhitelist $multiAddress1 $multiArray 2 $kycKey
-onb=`e1-cli sendaddmultitowhitelisttx $multiAddress1 $multiArray 2 "CBT"`
+onb=`e1-cli sendaddmultitowhitelisttx $multiAddress1 $multiArray 2 "$asset"`
 
 source main/new_block.sh 6; sleep 1
 
