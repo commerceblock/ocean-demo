@@ -42,11 +42,11 @@ prvKeyInit=KzMAyD64aEiU9fEDDKvNBky48pvCbumJ4Y9FLmkjxHrfS8Yo7WdZ
 prvKeyIssue=KwQT54eSXgjsb6wprShFtBQi7Aj56Sb2XPjnsnY9uMjYX16s7L32
 
 echo "importing policy private keys"
-e-cli importprivkey $prvKeyFrz  true; sleep 1
-e-cli importprivkey $prvKeyBrn  true; sleep 1
-e-cli importprivkey $prvKeyWht  true; sleep 1
-e-cli importprivkey $prvKeyInit  true; sleep 1
-
+e-cli importprivkey $prvKeyFrz  true; sleep 1;
+e-cli importprivkey $prvKeyBrn  true; sleep 1;
+e-cli importprivkey $prvKeyWht  true; sleep 1;
+e-cli importprivkey $prvKeyInit  true; sleep 1;
+e-cli importprivkey $prvKeyIssue  true; sleep 1;
 e-cli getwalletinfo
 
 echo "finished importing policy private keys"
