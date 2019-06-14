@@ -28,7 +28,7 @@ echo "***** Block Signing *****"
 e-dae $SIGNBLOCKARG ; sleep 10
 echo "importing sign block key"
 e-cli importprivkey $KEY; sleep 3
-./main/new_block.sh
+./main/new_block.sh 1
 printf "Generate a block from the main node:\ne-cli getblockcount -> "
 e-cli getblockcount
 printf "\n"
@@ -53,4 +53,6 @@ echo "finished importing policy private keys"
 e1-dae $SIGNBLOCKARG ; sleep 3
 ee-dae $SIGNBLOCKARG ; sleep 3
 
-
+nblocks=6
+echo "Mining $nblocks blocks"
+source main/new_block.sh $nblocks
