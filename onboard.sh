@@ -131,9 +131,9 @@ echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
 echo "User address self-registration: 100 addresses"
-echo "server whitelist nlines:"
 e1-cli sendaddtowhitelisttx 100 $asset; sleep 1
 source main/new_block.sh 1; sleep 1
+echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 echo "wlnode whitelist nlines:"
 ewl-cli dumpwhitelist whitelist_wl.txt; wc -l whitelist_wl.txt
