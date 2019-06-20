@@ -17,12 +17,13 @@ alias cli="$OCEANPATH/ocean-cli -datadir=$HOME/oceandir-main"
 for i in $(eval echo "{1..$nblocks}")
 do
 # Let's propose and accept some blocks, e1 is master!
+echo "getnewblockhex"
 NEW_BLOCK=`cli getnewblockhex`
-sleep 1
+echo "signblock"
 BLOCKSIG=`cli signblock $NEW_BLOCK`
-sleep 1
+echo "compareblocksigs"
 SIGNED_BLOCK=`cli combineblocksigs $NEW_BLOCK \[\"$BLOCKSIG\"\] | jq -r '.hex'`
-sleep 1
+echo "submitblock"
 cli submitblock $SIGNED_BLOCK
 sleep 1
 done

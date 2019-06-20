@@ -7,9 +7,10 @@ echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
 # Server registers new KYC public key
+echo "serving topping up kyc pubkeys"
 tx1=`e-cli topupkycpubkeys 100`
-echo $tx1
 source main/new_block.sh 1; sleep 1
+echo "getting wallet info."
 e-cli getwalletinfo
 
 echo "Client dumping kyc file..."
@@ -26,6 +27,8 @@ source main/new_block.sh 1 ; sleep 1
 
 echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+echo "wlnode whitelist nlines:"
+ewl-cli dumpwhitelist whitelist_wl.txt; wc -l whitelist_wl.txt
 echo "client whitelist nlines:"
 e1-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
@@ -65,13 +68,19 @@ e-cli getrawmempool
 ./main/new_block.sh 1
 e-cli getblock $(e-cli getblockhash 3)
 
-echo "whitelist nlines:"
-e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt; sleep 1
+echo "server whitelist nlines:"
+e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+echo "wlnode whitelist nlines:"
+ewl-cli dumpwhitelist whitelist_wl.txt; wc -l whitelist_wl.txt
 echo "client whitelist nlines:"
-e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt; sleep 1
+e1-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
 
 echo "User address self-registration: 100 addresses"
 e1-cli sendaddtowhitelisttx 100 $asset; sleep 1
+
+source main/new_block.sh 1; sleep 1
+
+e1-cli dumpwhitelist whitelistClient-2.txt; wc -l whitelistClient-2.txt; sleep 1
 
 clientAddress1=`e1-cli getnewaddress`
 clientPubKey1=`e1-cli validateaddress $clientAddress1 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
@@ -84,7 +93,7 @@ clientTweakedPubKey1=`e1-cli validateaddress $clientAddress1 | grep \"pubkey\" |
 clientTweakedPubKey2=`e1-cli validateaddress $clientAddress2 | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
 clientTweakedPubKey3=`e1-cli validateaddress $clientAddress3 | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
 
-source main/new_block.sh 6; sleep 1
+source main/new_block.sh 1; sleep 1
 
 printf "Creating a p2sh address for whitelisting\n"
 multiTweakedKeysArray="[\"$clientTweakedPubKey1\",\"$clientTweakedPubKey2\",\"$clientTweakedPubKey3\"]"
@@ -122,9 +131,12 @@ echo "server whitelist nlines:"
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
 
 echo "User address self-registration: 100 addresses"
-e1-cli sendaddtowhitelisttx 100 $asset; sleep 1
-source main/new_block.sh 6; sleep 1
-echo "client whitelist nlines:"
-e1-cli dumpwhitelist whitelistClient.txt; wc -l whitelistClient.txt
 echo "server whitelist nlines:"
+e1-cli sendaddtowhitelisttx 100 $asset; sleep 1
+source main/new_block.sh 1; sleep 1
 e-cli dumpwhitelist whitelist.txt; wc -l whitelist.txt
+echo "wlnode whitelist nlines:"
+ewl-cli dumpwhitelist whitelist_wl.txt; wc -l whitelist_wl.txt
+echo "client whitelist nlines:"
+e1-cli dumpwhitelist whitelist1.txt; wc -l whitelist1.txt
+
