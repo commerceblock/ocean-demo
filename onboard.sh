@@ -115,6 +115,64 @@ printf "mempool: "
 e1-cli getrawmempool
 printf "\n"
 
+clientAddress4=`e1-cli getnewaddress`
+clientPubKey4=`e1-cli validateaddress $clientAddress4 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+clientAddress5=`e1-cli getnewaddress`
+clientPubKey5=`e1-cli validateaddress $clientAddress5 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+clientAddress6=`e1-cli getnewaddress`
+clientPubKey6=`e1-cli validateaddress $clientAddress6 | grep \"derivedpubkey\" | awk '{ print $2 }' | sed -En 's/\"//p'| sed -En 's/\"//p'`
+
+clientTweakedPubKey4=`e1-cli validateaddress $clientAddress4 | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+clientTweakedPubKey5=`e1-cli validateaddress $clientAddress5 | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+clientTweakedPubKey6=`e1-cli validateaddress $clientAddress6 | grep \"pubkey\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+
+multiTweakedKeysArray2="[\"$clientTweakedPubKey4\",\"$clientTweakedPubKey5\",\"$clientTweakedPubKey6\"]"
+multiInputs2="2 $multiTweakedKeysArray2"
+multiAddress2=`e1-cli createmultisig $multiInputs2 | grep \"address\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+multiArray2="[\"$clientPubKey4\",\"$clientPubKey5\",\"$clientPubKey6\"]"
+
+multiTweakedKeysArray3="[\"$clientTweakedPubKey6\",\"$clientTweakedPubKey5\",\"$clientTweakedPubKey4\"]"
+multiInputs3="2 $multiTweakedKeysArray3"
+multiAddress3=`e1-cli createmultisig $multiInputs3 | grep \"address\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+multiArray3="[\"$clientPubKey6\",\"$clientPubKey5\",\"$clientPubKey4\"]"
+
+multiTweakedKeysArray4="[\"$clientTweakedPubKey1\",\"$clientTweakedPubKey5\"]"
+multiInputs4="2 $multiTweakedKeysArray4"
+multiAddress4=`e1-cli createmultisig $multiInputs4 | grep \"address\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+multiArray4="[\"$clientPubKey1\",\"$clientPubKey5\"]"
+
+multiTweakedKeysArray5="[\"$clientTweakedPubKey2\",\"$clientTweakedPubKey5\",\"$clientTweakedPubKey6\"]"
+multiInputs5="2 $multiTweakedKeysArray5"
+multiAddress5=`e1-cli createmultisig $multiInputs5 | grep \"address\" | awk '{ print $2 }' | sed -En 's/\"//p' | sed -En 's/\",//p'`
+multiArray5="[\"$clientPubKey2\",\"$clientPubKey5\",\"$clientPubKey6\"]"
+
+pubkeyPairs="[{\"address\":\"$clientAddress4\",\"pubkey\":\"$clientPubKey4\"},{\"address\":\"$clientAddress5\",\"pubkey\":\"$clientPubKey5\"}]"
+multiList="[{\"nmultisig\":2,\"pubkeys\":$multiArray2},{\"nmultisig\":2,\"pubkeys\":$multiArray3},{\"nmultisig\":2,\"pubkeys\":$multiArray4},{\"nmultisig\":2,\"pubkeys\":$multiArray5}]"
+
+echo "Manually creating a KYC file and onboarding it..."
+kycfile_man="kycfile_man.dat"
+userOnboardPubKey_man=`e-cli createkycfile $kycfile_man $pubkeyPairs $multiList`
+
+sleep 10
+
+e-cli onboarduser $kycfile_man; sleep 1
+
+source main/new_block.sh 1 ; sleep 1
+
+iswl=`e-cli querywhitelist $clientAddress4`
+iswl2=`e-cli querywhitelist $clientAddress5`
+iswl3=`e-cli querywhitelist $multiAddress2`
+iswl4=`e-cli querywhitelist $multiAddress3`
+iswl5=`e-cli querywhitelist $multiAddress4`
+iswl6=`e-cli querywhitelist $multiAddress5`
+
+echo $iswl
+echo $iswl2
+echo $iswl3
+echo $iswl4
+echo $iswl5
+echo $iswl6
+
 test=`e-cli getrawtransaction $onb`
 
 echo "client whitelist nlines:"
