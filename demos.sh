@@ -13,7 +13,6 @@ source assetissuance.sh
 #Off-chain whitelisting
 source whitelist.sh
 
-#Node restart
-source restart.sh
+
 
 
